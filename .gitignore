@@ -1,0 +1,6 @@
+
+#IGNORE LIB
+libft_malloc*
+
+#IGNORE OBJECTS
+objs/*
