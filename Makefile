@@ -8,23 +8,30 @@ endif
 CC			= gcc
 FLAGS		= -Wall -Werror -Wextra -g
 LNFLAGS		= -shared
+FLAGS_DEBUG	= -fsanitize=address
 
 # EXECUTABLE
 NAME		= libft_malloc.so
 HOSTLIB		= libft_malloc_$(HOSTTYPE).so
+TEST_N		= malloc_test
 
 # PATH
 SRCS_PATH	= srcs
 OBJS_PATH	= objs
-DEP_PATH	= incl/malloc.h
-INCL		= -I incl
+INC_PATH	= -I incl
 
 	### SOURCES FILES ###
 SRCS		= malloc.c
 
+TEST_FILES	= malloc.c \
+			  main.c
+
 			  # OBJECT FILES
 
 OBJS		= $(addprefix $(OBJS_PATH)/, $(SRCS:.c=.o))
+
+SRCS_TEST	= $(addprefix $(SRCS_PATH)/ $(TEST_FILES))
+OBJS_TEST	= $(addprefix $(OBJS_PATH)/, $(TEST_FILES:.c=.o))
 
 # COLORS
 RED			= \033[1;31m
@@ -47,6 +54,11 @@ art:
 			@echo "TODO art"
 			@#tput setaf 2; cat .ascii_art/name; tput setaf default
 
+test:		tmp $(TEST_N)
+
+$(TEST_N):	$(OBJS_TEST)
+			$(CC) $(FLAGS_DEBUG) $(FLAGS) -o $@ $(OBJS_TEST)
+
 $(NAME):	$(HOSTLIB)
 			@ln -fs $(HOSTLIB) $(NAME)
 			@$(NL_TXT)
@@ -58,9 +70,9 @@ $(HOSTLIB):	$(OBJS) $(DEP)
 tmp:
 			@/bin/mkdir -p objs
 
-$(OBJS_PATH)/%.o:	$(SRCS_PATH)/%.c $(DEP_PATH)
+$(OBJS_PATH)/%.o:	$(SRCS_PATH)/%.c 
 					@/bin/mkdir -p $(@D)
-					@$(CC) $(FLAGS) $(INCS) -c $< -o $@
+					@$(CC) $(FLAGS) $(FLAGS_DEBUG) $(INC_PATH) -c $< -o $@
 					@$(CHARG_LINE_TXT)
 
 clean:
@@ -70,7 +82,7 @@ clean:
 
 fclean:		clean
 			@$(FCLEAN_TXT)
-			@rm -rf $(NAME) $(HOSTLIB)
+			@rm -rf $(NAME) $(HOSTLIB) $(TEST_N)
 			@echo "TODO fclean art"
 			@$(NL_TXT)
 

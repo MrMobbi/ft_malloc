@@ -1,7 +1,9 @@
 
 #include "malloc.h"
 
-int main()
+void	*ft_malloc(size_t size)
 {
-	return (0);
+	printf("size: %ld byte\n", size);
+	(void) size;
+	return (NULL);
 }

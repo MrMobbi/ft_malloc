@@ -2,5 +2,9 @@
 #IGNORE LIB
 libft_malloc*
 
+#IGNORE executable
+malloc_test
+
+
 #IGNORE OBJECTS
 objs/*
