@@ -1,6 +1,16 @@
 
 #include "malloc.h"
 
+void assert_ok(long rv, char *call)
+{
+	if (rv == -1)
+	{
+		fprintf(stderr, "Failled call of %s\n", call);
+		perror("Error");
+		exit(1);
+	}
+}
+
 int main(int ac, char **av)
 {
 	(void) ac;
