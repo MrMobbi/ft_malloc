@@ -24,7 +24,8 @@ INC_PATH	= -I incl
 SRCS		= malloc.c
 
 TEST_FILES	= malloc.c \
-			  main.c
+			  main.c \
+			  utils.c \
 
 			  # OBJECT FILES
 
