@@ -6,15 +6,9 @@ int main(int ac, char **av)
 	(void) ac;
 	(void) av;
 
-	char *test = ft_malloc(sizeof(char) * 6);
+	char *test = ft_malloc(sizeof(char) * 9);
 
-	test[0] = 'a';
-	test[1] = 'b';
-	test[2] = 'c';
-	test[3] = 'd';
-	test[4] = 'e';
-	test[6] = '\0';
 
-	printf("[%s]\n", test);
+	(void) test;
 	return (0);
 }
