@@ -55,7 +55,7 @@ art:
 			@echo "TODO art"
 			@#tput setaf 2; cat .ascii_art/name; tput setaf default
 
-test:		tmp $(TEST_N)
+t:		tmp $(TEST_N)
 
 $(TEST_N):	$(OBJS_TEST)
 			$(CC) $(FLAGS_DEBUG) $(FLAGS) -o $@ $(OBJS_TEST)
@@ -88,6 +88,8 @@ fclean:		clean
 			@$(NL_TXT)
 
 re:			fclean all
+
+rt:			fclean t
 
 tests:
 			@# Ensures that the exit status of the command is always considered successful
