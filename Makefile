@@ -26,6 +26,7 @@ SRCS		= malloc.c
 TEST_FILES	= malloc.c \
 			  main.c \
 			  utils.c \
+			  ft_new_chunk_tiny.c \
 
 			  # OBJECT FILES
 
@@ -41,12 +42,12 @@ CYAN		= \033[1;36m
 RESET		= \033[0m
 
 # TEXTES
-START_TXT		= echo "$(CYAN)=== Compiling lib_malloc ===$(RESET)"
-END_TXT			= echo "$(GREEN)=== lib_malloc Compilated ===$(RESET)"
-CHARG_LINE_TXT	= echo "$(GREEN)█$(RESET)\c"
-CLEAN_TXT		= echo "$(RED) Deleting all files$(RESET)"
-FCLEAN_TXT		= echo "$(RED) Deleting $(NAME)$(RESET)"
-NL_TXT			= echo ""
+START_TXT		= printf "$(CYAN)=== Compiling lib_malloc ===\n$(RESET)"
+END_TXT			= printf "$(GREEN)=== lib_malloc Compilated ===\n$(RESET)"
+CHARG_LINE_TXT	= printf "$(GREEN)█$(RESET)"
+CLEAN_TXT		= printf "$(RED) Deleting all files\n$(RESET)"
+FCLEAN_TXT		= printf "$(RED) Deleting $(NAME)\n$(RESET)"
+NL_TXT			= printf "\n"
 
 # RULES
 all:		art tmp $(NAME)

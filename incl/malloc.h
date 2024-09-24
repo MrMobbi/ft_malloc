@@ -11,8 +11,8 @@
 
 # define D_DEBUG 1
 
-# define D_TINY_SIZE 32
-# define D_TINY_PAGE_SIZE 4096
+# define D_TINY_SIZE 72
+# define D_TINY_PAGE_SIZE 8192
 
 # define D_SMALL_SIZE 512
 # define D_SMALL_PAGE_SIZE 53248
@@ -25,6 +25,7 @@ enum e_offset
 	E_OFFSET_HEAP = 24,
 	E_OFFSET_META = 8,
 	E_OFFSET_ALGIN = 16,
+	E_OFFSET_SIZE_USED = 16,
 };
 
 enum e_flag_metadata
@@ -43,7 +44,8 @@ typedef struct s_chunk
 // this struct is 16 bytes long
 typedef struct s_heap
 {
-	size_t	size;
+	unsigned int	size;
+	unsigned int	size_used;
 	struct s_heap	*next;
 }		t_heap;
 
@@ -57,5 +59,8 @@ typedef struct s_malloc_data
 void	print_debug(char *msg);
 void	*ft_malloc(size_t size);
 void	ft_free(void *ptr);
+
+
+void	*ft_new_chunk_tiny(size_t size, void *tiny);
 
 #endif
