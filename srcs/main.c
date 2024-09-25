@@ -3,6 +3,7 @@
 
 int main(void)
 {
+	show_alloc_mem();
 	char	*a = ft_malloc(72);
 	char	*b = ft_malloc(72);
 	char	*c = ft_malloc(4064);
@@ -18,6 +19,9 @@ int main(void)
 	printf("[%p] address e\n", e);
 	printf("[%p] address f\n", f);
 	printf("[%p] address g\n", g);
+
+	printf("\n\n");
+	show_alloc_mem();
 
 	printf("\n\n### FREE ###\n\n");
 	printf("free a\n");

@@ -137,7 +137,7 @@ void	ft_free(void *ptr)
 
 void	show_alloc_mem(void)
 {
-	ft_show_block(malloc_data.tiny, "Tiny");
-	ft_show_block(malloc_data.small, "Small");
-	ft_show_block(malloc_data.big, "Big");
+	ft_show_block(malloc_data.tiny, "TNY");
+	ft_show_block(malloc_data.small, "SMALL");
+	ft_show_block_big(malloc_data.big);
 }

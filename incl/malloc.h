@@ -66,6 +66,7 @@ void	*ft_new_chunk(size_t size, void *tiny);
 
 //	SHOW_MEM
 void	ft_show_block(t_heap *heap, char *msg);
+void	ft_show_block_big(t_heap *heap);
 
 //	utils.c
 size_t	ft_offset_calculator(void *ptr);
