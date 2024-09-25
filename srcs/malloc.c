@@ -3,137 +3,41 @@
 
 t_malloc_data	malloc_data;
 
-bool	ft_create_first_tiny(void)
-{
-	malloc_data.tiny = mmap(NULL, D_TINY_PAGE_SIZE,	\
-		PROT_READ | PROT_WRITE, \
-		MAP_PRIVATE | MAP_ANONYMOUS, \
-		0, 0);
-	if (malloc_data.tiny == MAP_FAILED)
-		return (false);
-	malloc_data.tiny->size = D_TINY_PAGE_SIZE;
-	malloc_data.tiny->size_used = E_OFFSET_HEAP;
-	malloc_data.tiny->next = NULL;
-	if (D_DEBUG == 1)
-	{
-		printf("[%p] address size\n", &malloc_data.tiny->size);
-		printf("[%p] address size_used\n", &malloc_data.tiny->size_used);
-		printf("[%p] address next\n", &malloc_data.tiny->next);
-		printf("map tiny created\n");
-	}
-	return (true);
-}
+//******************//
+//		MALLOC		//
+//******************//
 
-void	*ft_create_new_heap_tiny(t_heap *head)
+static void	*ft_find_heap(t_heap *heap, size_t size)
 {
-	t_heap	*new = mmap(NULL, D_TINY_PAGE_SIZE, \
-			PROT_READ | PROT_WRITE, \
-		MAP_PRIVATE | MAP_ANONYMOUS, \
-		0, 0);
-	if (malloc_data.tiny == MAP_FAILED)
-		return (false);
-	new->size = D_TINY_PAGE_SIZE;
-	new->size_used = E_OFFSET_HEAP;
-	new->next = NULL;
-	while (head != NULL)
+	if (size <= D_TINY_SIZE)
 	{
-		if (head->next == NULL)
+		if (heap == NULL)
 		{
-			head->next = new;
-			break ;
+			malloc_data.tiny = ft_create_new_heap(NULL, D_TINY_PAGE_SIZE);
+			return (malloc_data.tiny);
 		}
-		head = head->next;
+		heap = ft_get_heap(heap, size, D_TINY_PAGE_SIZE);
 	}
-	if (D_DEBUG == 1)
+	else if (size <= D_SMALL_SIZE)
 	{
-		printf("[%p] address size\n", &new->size);
-		printf("[%p] address size_used\n", &new->size_used);
-		printf("[%p] address next\n", &new->next);
-		printf("map tiny created\n");
-	}
-	return (new);
-}
-
-void	*ft_find_heap_tiny(t_heap *heap, size_t size)
-{
-	if (heap == NULL)
-	{
-		ft_create_first_tiny();
-		return (malloc_data.tiny);
-	}
-	while (heap != NULL)
-	{
-		printf("[%d] | [%d]\n", heap->size_used + (int)size, heap->size);
-		if (heap->size_used + (int)size < heap->size)
-			return (heap);
-		if (heap->next == NULL)
-			return (ft_create_new_heap_tiny(malloc_data.tiny));
-		heap = heap->next;
-	}
-	return (NULL);
-}
-
-void	ft_update_size_heap_tiny(size_t size, t_heap *heap)
-{
-	size_t	size_used = heap->size_used;
-	size_t	total_size_chunk = size + E_OFFSET_META;
-	if (total_size_chunk % E_OFFSET_ALGIN > 0)
-		total_size_chunk += E_OFFSET_ALGIN - (total_size_chunk % E_OFFSET_ALGIN);
-	size_used += total_size_chunk;
-	heap->size_used = size_used;
-	printf("[%ld] total_size_chunk\n", total_size_chunk);
-	printf("[%ld] memory used int tiny\n", size_used);
-}
-
-bool	ft_check_if_small_exist(void)
-{
-	if (malloc_data.small != NULL)
-		return (true);
-	malloc_data.small = mmap(NULL, D_SMALL_PAGE_SIZE,	\
-		PROT_READ | PROT_WRITE, \
-		MAP_PRIVATE | MAP_ANONYMOUS, \
-		0, 0);
-	if (malloc_data.small == MAP_FAILED)
-		return (false);
-	malloc_data.small->size = D_SMALL_PAGE_SIZE;
-	malloc_data.small->next = NULL;
-	malloc_data.small->size = E_OFFSET_HEAP << E_OFFSET_SIZE_USED;
-	if (D_DEBUG == 1)
-		printf("map small created\n");
-	return (true);
-}
-
-static size_t	*ft_go_to_next_free_space(void *pos, size_t size)
-{
-	size_t	meta_data = *((size_t*)pos);
-	size_t	chunk_size;
-	size_t	flags;
-	size_t	offset;
-
-	(void) offset;
-	while (meta_data != 0)
-	{
-		chunk_size = meta_data >> E_OFFSET_FLAGS;
-		flags = meta_data & E_OFFSET_FLAGS;
-		if (flags == E_FREE)
+		if (heap == NULL)
 		{
-			if (size <= chunk_size)
-				return (pos);
+			malloc_data.small = ft_create_new_heap(NULL, D_SMALL_PAGE_SIZE);
+			return (malloc_data.small);
 		}
+		heap = ft_get_heap(heap, size, D_SMALL_PAGE_SIZE);
 	}
-	return (NULL);
-}
-
-void	*ft_new_chunk_small(size_t size, void *small)
-{
-	void	*head = small;
-	size_t	*pos = head + E_OFFSET_HEAP;
-
-	pos = ft_go_to_next_free_space(pos, size);
-	*pos = size << E_OFFSET_FLAGS;
-	*pos += E_IN_USE;
-	head = pos;
-	return (head + E_OFFSET_META);
+	else if (size > D_SMALL_SIZE)
+	{
+		if (heap == NULL)
+		{
+			malloc_data.big = ft_create_new_heap(NULL, size + E_OFFSET_HEAP);
+			return (malloc_data.big);
+		}
+		heap = ft_create_new_heap(malloc_data.big, size + E_OFFSET_HEAP);
+		return (heap);
+	}
+	return (heap);
 }
 
 void	*ft_malloc(size_t size)
@@ -142,76 +46,69 @@ void	*ft_malloc(size_t size)
 	void	*heap;
 	printf("size asked : [%ld]\n", size);
 	if (size <= D_TINY_SIZE)
-	{
-		printf("tiny detected\n");
-		heap = ft_find_heap_tiny(malloc_data.tiny, size);
-		if (heap == NULL)
-			return (NULL);
-		ptr = ft_new_chunk_tiny(size, heap);
-		ft_update_size_heap_tiny(size, heap);
-		return (ptr);
-	}
+		heap = ft_find_heap(malloc_data.tiny, size);
 	else if (size <= D_SMALL_SIZE)
+		heap = ft_find_heap(malloc_data.small, size);
+	else if (size > D_SMALL_SIZE)
 	{
-		printf("small detected\n");
-		if (!ft_check_if_small_exist())
-			return (NULL);
-		return (ft_new_chunk_small(size, malloc_data.small));
+		heap = ft_find_heap(malloc_data.big, size);
+		return (heap + E_OFFSET_HEAP);
 	}
-	else if (size > D_SMALL_PAGE_SIZE)
-	{
-		printf("big detected\n");
-		//todo
-	}
-	return (NULL);
+	if (heap == NULL)
+		return (NULL);
+	ptr = ft_new_chunk(size, heap);
+	ft_update_size_heap(size, heap);
+	return (ptr);
 }
 
 //******************//
-//		FT_FREE		//
+//		FREE		//
 //******************//
-static void	*ft_move_size(void *pos)
-{
-	size_t	meta_data = *((size_t*)pos);
-	size_t	chunk_size = meta_data >> E_OFFSET_FLAGS;
-	size_t	offset = E_OFFSET_META + chunk_size;
-	if (offset % E_OFFSET_ALGIN > 0)
-		offset += E_OFFSET_ALGIN - (offset % E_OFFSET_ALGIN);
-	return (pos + offset);
-}
 
-static bool	ft_check_tiny_heap(void)
+static void ft_delete_heap_big(void *ptr)
 {
-	void	*head = malloc_data.tiny;
-	size_t	*pos = head + E_OFFSET_HEAP;
-	size_t	meta_data = *pos;
+	t_heap *current = malloc_data.big;
+	t_heap *previous = NULL;
+	t_heap *target = (t_heap *)((char *)ptr - E_OFFSET_HEAP);
 
-	while (meta_data != 0)
+	while (current)
 	{
-		if ((meta_data & E_OFFSET_FLAGS) == E_IN_USE)
-			return (false);
-		pos = ft_move_size(pos);
-		meta_data = *pos;
+		if (current == target)
+		{
+			if (previous) 
+				previous->next = current->next;
+			else 
+				malloc_data.big = current->next;
+			munmap(current, current->size);
+			return;
+		}
+		previous = current;
+		current = current->next;
 	}
-	printf("all heap clear\n");
-	return (true);
 }
 
-static void ft_clear_heap_tiny(void)
-{
-	munmap(malloc_data.tiny, D_TINY_SIZE);
-	malloc_data.tiny = NULL;
-	printf("page tiny destroyed\n");
-}
-
-static void	ft_check_if_heap_is_used(size_t size)
+static void	ft_check_heap_empty(size_t size)
 {
 	if (size <= D_TINY_SIZE)
-	{
-		malloc_data.tiny->size_used -= size + E_OFFSET_META;
-		if(ft_check_tiny_heap())
-			ft_clear_heap_tiny();
-	}
+		malloc_data.tiny = ft_delete_heap_if_empty(malloc_data.tiny);
+	else if (size <= D_SMALL_SIZE)
+		malloc_data.small = ft_delete_heap_if_empty(malloc_data.small);
 }
+
+static void	ft_update_heap(size_t size, void *ptr)
+{
+	t_heap	*heap;
+
+	if (size <= D_TINY_SIZE)
+		heap = ft_find_heap_via_ptr(malloc_data.tiny, ptr);
+	else if (size <= D_SMALL_SIZE)
+		heap = ft_find_heap_via_ptr(malloc_data.small, ptr);
+	size += E_OFFSET_META;
+	if (size % E_OFFSET_ALGIN > 0)
+		size += E_OFFSET_ALGIN - (size % E_OFFSET_ALGIN);
+	heap->size_used -= size;
+}
+
 
 void	ft_free(void *ptr)
 {
@@ -219,11 +116,28 @@ void	ft_free(void *ptr)
 	size_t	meta_data = *pos;
 	size_t	size = meta_data >> E_OFFSET_FLAGS;
 	size_t	flags = meta_data & E_OFFSET_FLAGS;
-	if (flags == E_IN_USE)
-		flags = E_FREE;
-	else if (flags == E_FREE)
-		(void) flags; // todo error handling double free
-	*pos = size << E_OFFSET_FLAGS;
-	*pos += E_FREE;
-	ft_check_if_heap_is_used(size);
+	if (meta_data == 0 || meta_data > 8129)
+		ft_delete_heap_big(ptr);
+	else
+	{
+		if (flags == E_IN_USE)
+			flags = E_FREE;
+		else if (flags == E_FREE)
+			(void) flags; // todo error handling double free
+		*pos = size << E_OFFSET_FLAGS;
+		*pos += E_FREE;
+		ft_update_heap(size, ptr);
+		ft_check_heap_empty(size);
+	}
+}
+
+//******************//
+//	  SHOW_MEM  	//
+//******************//
+
+void	show_alloc_mem(void)
+{
+	ft_show_block(malloc_data.tiny, "Tiny");
+	ft_show_block(malloc_data.small, "Small");
+	ft_show_block(malloc_data.big, "Big");
 }

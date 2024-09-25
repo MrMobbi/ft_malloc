@@ -14,10 +14,10 @@
 # define D_TINY_SIZE 72
 # define D_TINY_PAGE_SIZE 8192
 
-# define D_SMALL_SIZE 512
-# define D_SMALL_PAGE_SIZE 53248
+# define D_SMALL_SIZE 4064
+# define D_SMALL_PAGE_SIZE 409600
 
-# define D_OFFSET_FLAGS 3
+# define D_MAX_META 10000
 
 enum e_offset
 {
@@ -44,8 +44,8 @@ typedef struct s_chunk
 // this struct is 16 bytes long
 typedef struct s_heap
 {
-	unsigned int	size;
-	unsigned int	size_used;
+	size_t	size;
+	size_t	size_used;
 	struct s_heap	*next;
 }		t_heap;
 
@@ -56,11 +56,28 @@ typedef struct s_malloc_data
 	t_heap	*big;
 }		t_malloc_data;
 
-void	print_debug(char *msg);
+//	malloc.c
 void	*ft_malloc(size_t size);
 void	ft_free(void *ptr);
+void	show_alloc_mem(void);
 
+// ft_new_chunk.c
+void	*ft_new_chunk(size_t size, void *tiny);
 
-void	*ft_new_chunk_tiny(size_t size, void *tiny);
+//	SHOW_MEM
+void	ft_show_block(t_heap *heap, char *msg);
+
+//	utils.c
+size_t	ft_offset_calculator(void *ptr);
+
+//	utils_malloc.c
+void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page);
+void	ft_update_size_heap(size_t size, t_heap *heap);
+void	*ft_create_new_heap(t_heap *heap, size_t heap_size);
+
+//	utils_free.c
+void	*ft_delete_heap_if_empty(t_heap *heap);
+bool	ft_heap_is_empty(t_heap *heap);
+void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr);
 
 #endif

@@ -26,7 +26,10 @@ SRCS		= malloc.c
 TEST_FILES	= malloc.c \
 			  main.c \
 			  utils.c \
-			  ft_new_chunk_tiny.c \
+			  utils_malloc.c \
+			  utils_free.c \
+			  show_mem.c \
+			  ft_new_chunk.c \
 
 			  # OBJECT FILES
 

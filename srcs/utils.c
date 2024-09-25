@@ -1,8 +1,12 @@
 
 #include "malloc.h"
 
-void	print_debug(char *msg)
+
+size_t	ft_offset_calculator(void *ptr)
 {
-	while (msg++)
-		write(1, msg, 1);
+	size_t	offset = *((size_t*)ptr) >> E_OFFSET_FLAGS;
+	offset += E_OFFSET_META;
+	if (offset % E_OFFSET_ALGIN > 0)
+		offset += E_OFFSET_ALGIN - (offset % E_OFFSET_ALGIN);
+	return (offset);
 }
