@@ -9,35 +9,31 @@ t_malloc_data	malloc_data;
 
 static void	*ft_find_heap(t_heap *heap, size_t size)
 {
+	size_t	page_size;
+	t_heap	*new;
+
 	if (size <= D_TINY_SIZE)
-	{
-		if (heap == NULL)
-		{
-			malloc_data.tiny = ft_create_new_heap(NULL, D_TINY_PAGE_SIZE);
-			return (malloc_data.tiny);
-		}
-		heap = ft_get_heap(heap, size, D_TINY_PAGE_SIZE);
-	}
+		page_size = D_TINY_PAGE_SIZE;
 	else if (size <= D_SMALL_SIZE)
+		page_size = D_SMALL_PAGE_SIZE;
+	else
+		page_size = size + E_OFFSET_HEAP;
+
+	if (heap == NULL)
 	{
-		if (heap == NULL)
-		{
-			malloc_data.small = ft_create_new_heap(NULL, D_SMALL_PAGE_SIZE);
-			return (malloc_data.small);
-		}
-		heap = ft_get_heap(heap, size, D_SMALL_PAGE_SIZE);
+		if (size <= D_TINY_SIZE)
+			new = malloc_data.tiny = ft_create_new_heap(NULL, D_TINY_PAGE_SIZE);
+		else if (size <= D_SMALL_SIZE)
+			new = malloc_data.small = ft_create_new_heap(NULL, D_SMALL_PAGE_SIZE);
+		else
+			new = malloc_data.big = ft_create_new_heap(NULL, page_size);
+		return (new);
 	}
-	else if (size > D_SMALL_SIZE)
-	{
-		if (heap == NULL)
-		{
-			malloc_data.big = ft_create_new_heap(NULL, size + E_OFFSET_HEAP);
-			return (malloc_data.big);
-		}
-		heap = ft_create_new_heap(malloc_data.big, size + E_OFFSET_HEAP);
-		return (heap);
-	}
-	return (heap);
+
+	if (size > D_SMALL_SIZE)
+		return (ft_create_new_heap(malloc_data.big, page_size));
+	else
+		return (ft_get_heap(heap, size, page_size));
 }
 
 void	*ft_malloc(size_t size)
@@ -58,6 +54,21 @@ void	*ft_malloc(size_t size)
 		return (NULL);
 	ptr = ft_new_chunk(size, heap);
 	ft_update_size_heap(size, heap);
+	return (ptr);
+}
+
+//******************//
+//		REALLOC		//
+//******************//
+
+void	*ft_realloc(void *ptr, size_t size)
+{
+	if (size <= D_TINY_SIZE)
+		ptr = ft_handle_realloc(malloc_data.tiny, ptr, size);
+	else if (size <= D_SMALL_SIZE)
+		ptr = ft_handle_realloc(malloc_data.small, ptr, size);
+	else
+		ptr = ft_realloc_big(malloc_data.big, ptr, size);
 	return (ptr);
 }
 
@@ -115,7 +126,7 @@ void	ft_free(void *ptr)
 	size_t	*pos = ptr - E_OFFSET_META;
 	size_t	meta_data = *pos;
 	size_t	size = meta_data >> E_OFFSET_FLAGS;
-	size_t	flags = meta_data & E_OFFSET_FLAGS;
+	size_t	flags = meta_data & E_GET_FLAGS;
 	if (meta_data == 0 || meta_data > 8129)
 		ft_delete_heap_big(ptr);
 	else
@@ -137,7 +148,7 @@ void	ft_free(void *ptr)
 
 void	show_alloc_mem(void)
 {
-	ft_show_block(malloc_data.tiny, "TNY");
+	ft_show_block(malloc_data.tiny, "TINY");
 	ft_show_block(malloc_data.small, "SMALL");
 	ft_show_block_big(malloc_data.big);
 }

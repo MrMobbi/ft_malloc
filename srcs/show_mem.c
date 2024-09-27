@@ -10,8 +10,7 @@ void	ft_show_block(t_heap *heap, char *heap_type)
 		printf("%s heap is empty\n", heap_type);
 		return ;
 	}
-
-	printf("%s heap:\n", heap_type);
+	ft_printf("%s heap:\n", heap_type);
 	while (heap != NULL)
 	{
 		ptr = heap;
@@ -27,7 +26,7 @@ void	ft_show_block(t_heap *heap, char *heap_type)
 		}
 		heap = heap->next;
 	}
-	printf("\n");
+	ft_printf("\n");
 }
 
 void	ft_show_block_big(t_heap *heap)
@@ -38,7 +37,7 @@ void	ft_show_block_big(t_heap *heap)
 		printf("Big heap is empty\n\n");
 		return ;
 	}
-	printf("Big heap :\n");
+	ft_printf("Big heap :\n");
 	while (heap != NULL)
 	{
 		ptr = heap;

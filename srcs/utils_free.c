@@ -32,13 +32,13 @@ bool	ft_heap_is_empty(t_heap *heap)
 
 	ptr += E_OFFSET_HEAP;
 	meta_data = *((size_t*)ptr);
-	flags = meta_data & E_OFFSET_FLAGS;
+	flags = meta_data & E_GET_FLAGS;
 	while (flags == E_FREE)
 	{
 		offset = ft_offset_calculator(ptr);
 		ptr += offset;
 		meta_data = *((size_t*)ptr);
-		flags = meta_data & E_OFFSET_FLAGS;
+		flags = meta_data & E_GET_FLAGS;
 		if (meta_data == 0)
 			return (true);
 	}

@@ -5,7 +5,7 @@ ifeq ($(HOSTTYPE),)
 endif
 
 # COMPILATION
-CC			= gcc
+CC			= gcc -fPIC
 FLAGS		= -Wall -Werror -Wextra -g
 LNFLAGS		= -shared
 FLAGS_DEBUG	= -fsanitize=address
@@ -28,8 +28,10 @@ TEST_FILES	= malloc.c \
 			  utils.c \
 			  utils_malloc.c \
 			  utils_free.c \
+			  utils_realloc.c \
 			  show_mem.c \
 			  ft_new_chunk.c \
+			  ft_printf.c \
 
 			  # OBJECT FILES
 
@@ -69,7 +71,7 @@ $(NAME):	$(HOSTLIB)
 			@$(NL_TXT)
 			@$(END_TXT)
 
-$(HOSTLIB):	$(OBJS) $(DEP)
+$(HOSTLIB):	$(OBJS)
 			$(CC) $(LNFLAGS) $(INCL) -o $@ $(OBJS)
 
 tmp:
