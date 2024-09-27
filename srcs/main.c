@@ -3,12 +3,17 @@
 
 int main(void)
 {
-	void	*a = ft_malloc(73);
-	void	*b = ft_malloc(73);
-	void	*c = ft_malloc(73);
 
-	printf("[%p] address a\n", a);
-	printf("[%p] address a\n", b);
-	printf("[%p] address a\n", c);
+	void	*big = ft_malloc(1092830);
+	void	*big2 = ft_malloc(1092830);
+	void	*big3 = ft_malloc(1092830);
+	void	*big4 = ft_malloc(9999999);
+	printf("[%p] big\n", big);
+	printf("[%p] big2\n", big2);
+	printf("[%p] big3\n", big3);
+	printf("[%p] big4\n", big4);
+
+	show_alloc_mem();
+
 	return (0);
 }

@@ -4,23 +4,25 @@
 void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr)
 {
 	void	*search = heap;
-	size_t	chunk_size, offset;
-	size_t	total_size = 0;
-	search += E_OFFSET_HEAP;
+	size_t	total_size = E_OFFSET_HEAP;
 
+	search += E_OFFSET_HEAP;
 	while (ptr != search + E_OFFSET_META)
 	{
-		chunk_size = *((size_t*)search) >> E_OFFSET_FLAGS;
-		if (total_size + chunk_size > heap->size)
-		{
+		if (total_size + ft_offset_calculator(search) > heap->size \
+				|| *((size_t*)search) == 0) {
 			heap = heap->next;
-			search = heap + E_OFFSET_HEAP;
+			if (heap == NULL)
+				return (NULL);
+			search = heap;
+			search += E_OFFSET_HEAP;
+			total_size = E_OFFSET_HEAP;
 		}
-		if (heap == NULL)
-			return (NULL);
-		total_size += chunk_size;
-		offset = ft_offset_calculator(search);
-		search += offset;
+		else
+		{
+			total_size += ft_offset_calculator(search);
+			search += ft_offset_calculator(search);
+		}
 	}
 	return (heap);
 }
@@ -59,6 +61,7 @@ void *ft_delete_heap_if_empty(t_heap *heap)
                 heap = next;
 			else
                 previous->next = next;
+			printf("[%p] mmap removed\n", current);
             munmap(current, current->size);
         }
         else

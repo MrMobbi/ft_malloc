@@ -59,13 +59,12 @@ static void	*ft_go_next_free_space(void *pos, size_t size)
 
 static void	ft_free_inbetween(void *pos, size_t new_size, size_t old_size)
 {
-
 	pos += new_size + E_OFFSET_META;
 	*((size_t*)pos) = (old_size - new_size) << E_OFFSET_FLAGS;
 	*((size_t*)pos) += E_RESIZE;
 }
 
-static void	ft_truc(void *pos, size_t new_size, size_t old_size)
+static void	ft_resize_inbetween(void *pos, size_t new_size, size_t old_size)
 {
 	void	*start = pos;
 	size_t	total_jump = old_size;
@@ -74,14 +73,9 @@ static void	ft_truc(void *pos, size_t new_size, size_t old_size)
 	{
 		pos += ft_offset_calculator(pos);
 		total_jump += ft_real_size_calculator(*((size_t*)pos) >> E_OFFSET_FLAGS);
-		total_jump = ft_real_size_calculator(total_jump);
 	}
 	pos = start;
-	if (total_jump == new_size)
-		pos += new_size + E_OFFSET_META;
-	else
-		pos += total_jump - new_size + E_OFFSET_META;
-	if (*((size_t*)pos) != 0 && (*((size_t*)pos) & E_GET_FLAGS) == E_FREE)
+	if (total_jump != new_size)
 	{
 		pos += new_size + E_OFFSET_META;
 		*((size_t*)pos) = (total_jump - new_size) << E_OFFSET_FLAGS;
@@ -100,7 +94,7 @@ static void	ft_resize_chunk(void *pos, size_t size)
 	else if (old_size > new_size)
 		ft_free_inbetween(pos, new_size, old_size);
 	else if (new_size > old_size)
-		ft_truc(pos, new_size, old_size);
+		ft_resize_inbetween(pos, new_size, old_size);
 }
 
 void	*ft_new_chunk(size_t size, t_heap *heap)

@@ -84,7 +84,7 @@ int		ft_put_unsinbr(unsigned int n);
 
 //	utils_malloc.c
 void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page);
-void	ft_update_size_heap(size_t size, t_heap *heap);
+void	ft_update_size_heap(t_heap *heap);
 void	*ft_create_new_heap(t_heap *heap, size_t heap_size);
 
 //	utils_free.c

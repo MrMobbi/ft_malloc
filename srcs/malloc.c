@@ -17,7 +17,7 @@ static void	*ft_find_heap(t_heap *heap, size_t size)
 	else if (size <= D_SMALL_SIZE)
 		page_size = D_SMALL_PAGE_SIZE;
 	else
-		page_size = size + E_OFFSET_HEAP;
+		page_size = size + E_OFFSET_META_BIG;
 
 	if (heap == NULL)
 	{
@@ -48,12 +48,14 @@ void	*ft_malloc(size_t size)
 	else if (size > D_SMALL_SIZE)
 	{
 		heap = ft_find_heap(malloc_data.big, size);
-		return (heap + E_OFFSET_HEAP);
+		if (heap == NULL)
+			return (NULL);
+		return (heap + E_OFFSET_META_BIG);
 	}
 	if (heap == NULL)
 		return (NULL);
 	ptr = ft_new_chunk(size, heap);
-	ft_update_size_heap(size, heap);
+	ft_update_size_heap(heap);
 	return (ptr);
 }
 
@@ -127,7 +129,7 @@ void	ft_free(void *ptr)
 	size_t	meta_data = *pos;
 	size_t	size = meta_data >> E_OFFSET_FLAGS;
 	size_t	flags = meta_data & E_GET_FLAGS;
-	if (meta_data == 0 || meta_data > 8129)
+	if (meta_data == 0 || meta_data > 16289)
 		ft_delete_heap_big(ptr);
 	else
 	{

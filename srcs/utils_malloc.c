@@ -28,21 +28,29 @@ void	*ft_create_new_heap(t_heap *head, size_t heap_size)
 	return (new);
 }
 
-void	ft_update_size_heap(size_t size, t_heap *heap)
+void	ft_update_size_heap(t_heap *heap)
 {
-	size_t	size_used = heap->size_used;
-	size_t	total_size_chunk = size + E_OFFSET_META;
-	if (total_size_chunk % E_OFFSET_ALGIN > 0)
-		total_size_chunk += E_OFFSET_ALGIN - (total_size_chunk % E_OFFSET_ALGIN);
-	size_used += total_size_chunk;
-	heap->size_used = size_used;
+	void	*pos = heap;
+	size_t	total_size = E_OFFSET_HEAP;
+	size_t	flags;
+
+	pos += E_OFFSET_HEAP;
+	while (*((size_t*)pos) != 0)
+	{
+		flags = *((size_t*)pos) & E_GET_FLAGS;
+		if (flags != E_FREE)
+			total_size += ft_offset_calculator(pos);
+		pos += ft_offset_calculator(pos);
+	}
+	heap->size_used = total_size;
 }
 
 void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page)
 {
 	while (heap != NULL)
 	{
-		if (heap->size_used + size < heap->size)
+		printf("[%ld] | [%ld]\n", heap->size_used + ft_real_size_calculator(size) + E_OFFSET_META, heap->size);
+		if (heap->size_used + ft_real_size_calculator(size) + E_OFFSET_META < heap->size)
 			return (heap);
 		if (heap->next == NULL)
 			return (ft_create_new_heap(heap, size_page));
