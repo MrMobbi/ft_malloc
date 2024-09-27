@@ -40,7 +40,6 @@ void	*ft_malloc(size_t size)
 {
 	void	*ptr;
 	void	*heap;
-	printf("size asked : [%ld]\n", size);
 	if (size <= D_TINY_SIZE)
 		heap = ft_find_heap(malloc_data.tiny, size);
 	else if (size <= D_SMALL_SIZE)
@@ -93,7 +92,7 @@ static void ft_delete_heap_big(void *ptr)
 			else 
 				malloc_data.big = current->next;
 			munmap(current, current->size);
-			return;
+			return ;
 		}
 		previous = current;
 		current = current->next;

@@ -22,9 +22,6 @@ void	*ft_create_new_heap(t_heap *head, size_t heap_size)
 		}
 		head = head->next;
 	}
-	printf("[%p] address size\n", &new->size);
-	printf("[%p] address size_used\n", &new->size_used);
-	printf("[%p] address next\n", &new->next);
 	return (new);
 }
 
@@ -49,7 +46,6 @@ void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page)
 {
 	while (heap != NULL)
 	{
-		printf("[%ld] | [%ld]\n", heap->size_used + ft_real_size_calculator(size) + E_OFFSET_META, heap->size);
 		if (heap->size_used + ft_real_size_calculator(size) + E_OFFSET_META < heap->size)
 			return (heap);
 		if (heap->next == NULL)
