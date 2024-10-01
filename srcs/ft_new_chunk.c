@@ -83,7 +83,7 @@ static void	ft_resize_inbetween(void *pos, size_t new_size, size_t old_size)
 	}
 }
 
-static void	ft_resize_chunk(void *pos, size_t size)
+void	ft_resize_chunk(void *pos, size_t size)
 {
 	size_t	old_size, new_size;
 	

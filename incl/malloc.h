@@ -68,6 +68,7 @@ void	ft_free(void *ptr);
 void	show_alloc_mem(void);
 
 //	ft_new_chunk.c
+void	ft_resize_chunk(void *pos, size_t size);
 void	*ft_new_chunk(size_t size, t_heap *heap);
 
 //	show_mem.c
@@ -93,8 +94,7 @@ bool	ft_heap_is_empty(t_heap *heap);
 void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr);
 
 //	utils_realloc.c
-void	*ft_handle_realloc(t_heap *heap, void *ptr, size_t size);
-void	*ft_realloc_big(t_heap *heap, void *ptr, size_t size);
+void	*ft_reallocate_same_heap(t_heap *heap, void *ptr, size_t size);
 
 //	ft_printf.c
 int		ft_printf(const char *str, ...);

@@ -3,30 +3,39 @@
 
 int main(void)
 {
-
-	char	*big = ft_malloc(1092830);
-	void	*big2 = ft_malloc(1092830);
+	char	*big = ft_malloc(4073);
+	void	*big2 = ft_malloc(12830);
 	void	*big3 = ft_malloc(1092830);
 	void	*big4 = ft_malloc(9999999);
-	printf("[%p] big\n", big);
-	printf("[%p] big2\n", big2);
-	printf("[%p] big3\n", big3);
-	printf("[%p] big4\n", big4);
-	for (int i = 0; i < 26; i++)
-		big[i] = 'a' + i;
-
-	ft_realloc(big, 5000);
-	big[26] = '\0';
-	printf("%s\n", big);
-
-	char	*test = malloc(8);
-	for (int i = 0; i < 7; i++)
-		test[i] = 'a' + i;
-	test[7] = '\0';
-	printf("%s\n", test);
+	void	*small1 = ft_malloc(123);
+	void	*small2 = ft_malloc(523);
+	void	*small3 = ft_malloc(1123);
+	void	*small4 = ft_malloc(3123);
+	void	*small5 = ft_malloc(4072);
+	void	*tiny1 = ft_malloc(8);
+	void	*tiny2 = ft_malloc(24);
+	void	*tiny3 = ft_malloc(40);
+	void	*tiny4 = ft_malloc(56);
+	void	*tiny5 = ft_malloc(72);
 
 	show_alloc_mem();
-	free(test);
+	tiny1 = ft_realloc(tiny1, 24);
+	small1 = ft_realloc(small1,250);
+	show_alloc_mem();
+	(void) tiny1;
+	(void) tiny2;
+	(void) tiny3;
+	(void) tiny4;
+	(void) tiny5;
+	(void) small1;
+	(void) small2;
+	(void) small3;
+	(void) small4;
+	(void) small5;
+	(void) big;
+	(void) big2;
+	(void) big3;
+	(void) big4;
 
 	return (0);
 }

@@ -25,14 +25,17 @@ static void	ft_print_color(size_t flags)
 		ft_write_color("\033[32m");
 	else if (flags == E_RESIZE)
 		ft_write_color("\033[34m");
+	else if (flags == 4)
+		ft_write_color("\033[33m");
 }
 
 static void	ft_print_chunk(void *ptr)
 {
 	const	char	*reset = "\033[0m";
+	ft_print_color(4);
 	ft_print_color(*((size_t*)ptr) & E_GET_FLAGS);
 	printf("[%p - %p] : %ld bytes", ptr + E_OFFSET_META, \
-			ptr + E_OFFSET_META + (*((size_t*)ptr) >> E_OFFSET_FLAGS), \
+			ptr + E_OFFSET_META + ((*((size_t*)ptr) >> E_OFFSET_FLAGS) - 1), \
 			*((size_t*)ptr) >> E_OFFSET_FLAGS);
 	ft_print_flags(*((size_t*)ptr) & E_GET_FLAGS);
 	write(STDOUT_FILENO, reset, 4);
@@ -44,7 +47,7 @@ void	ft_show_block(t_heap *heap, char *heap_type)
 	size_t	offset;
 	if (heap == NULL)
 	{
-		printf("%s heap is empty\n", heap_type);
+		ft_printf("%s heap is empty\n\n", heap_type);
 		return ;
 	}
 	ft_printf("%s heap:\n", heap_type);
@@ -52,7 +55,7 @@ void	ft_show_block(t_heap *heap, char *heap_type)
 	{
 		ptr = heap;
 		ptr += E_OFFSET_HEAP;
-		printf("[%p] start of the block\n", heap);
+		ft_printf("[%p] # START OF THE BLOCK #\n", heap);
 		while (*((size_t*)ptr) != 0)
 		{
 			ft_print_chunk(ptr);
@@ -70,7 +73,7 @@ void	ft_show_block_big(t_heap *heap)
 	char	*reset = "\033[0m";
 	if (heap == NULL)
 	{
-		printf("Big heap is empty\n\n");
+		ft_printf("Big heap is empty\n\n");
 		return ;
 	}
 	ft_printf("Big heap :\n");
@@ -78,8 +81,9 @@ void	ft_show_block_big(t_heap *heap)
 	{
 		ptr = heap;
 		ft_write_color("\033[32m");
-		printf("[%p - %p] : %ld bytes\n", ptr + E_OFFSET_HEAP, \
-				ptr + E_OFFSET_HEAP + heap->size,
+		printf("[%p - %p] : %ld bytes\n", 
+				ptr + E_OFFSET_META_BIG,
+				ptr + heap->size,
 				heap->size - E_OFFSET_META_BIG);
 		heap = heap->next;
 	}
