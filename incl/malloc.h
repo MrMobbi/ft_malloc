@@ -22,7 +22,7 @@
 
 enum e_offset
 {
-	E_OFFSET_FLAGS = 2,
+	E_OFFSET_FLAGS = 3,
 	E_OFFSET_HEAP = 24,
 	E_OFFSET_META_BIG = 32,
 	E_OFFSET_META = 8,
@@ -35,7 +35,8 @@ enum e_flag_metadata
 	E_FREE	= 0,
 	E_IN_USE = 1,
 	E_RESIZE = 2,
-	E_GET_FLAGS = 3,
+	E_BIG = 4,
+	E_GET_FLAGS = 7,
 };
 
 // this struct is 16 bytes long
@@ -94,7 +95,10 @@ bool	ft_heap_is_empty(t_heap *heap);
 void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr);
 
 //	utils_realloc.c
-void	*ft_reallocate_same_heap(t_heap *heap, void *ptr, size_t size);
+void	*ft_realloc_same_heap(void *pos, size_t size);
+void	*ft_realloc_same_big(void *pos, size_t size);
+void	*ft_reallocate_big(t_heap *heap, void *pos, size_t size);
+void	*ft_realloc_all(t_heap *heap, void *pos, size_t size);
 
 //	ft_printf.c
 int		ft_printf(const char *str, ...);

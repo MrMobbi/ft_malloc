@@ -38,7 +38,7 @@ static void	*ft_find_heap(t_heap *heap, size_t size)
 
 void	*ft_malloc(size_t size)
 {
-	void	*ptr;
+	void	*pos;
 	void	*heap;
 	if (size <= D_TINY_SIZE)
 		heap = ft_find_heap(malloc_data.tiny, size);
@@ -50,63 +50,58 @@ void	*ft_malloc(size_t size)
 		if (heap == NULL)
 			return (NULL);
 		heap += E_OFFSET_HEAP;
-		*((size_t*)heap) = size << E_OFFSET_FLAGS;
+		*((size_t*)heap) = E_BIG;
 		return (heap + E_OFFSET_META);
 	}
 	if (heap == NULL)
 		return (NULL);
-	ptr = ft_new_chunk(size, heap);
+	pos = ft_new_chunk(size, heap);
 	ft_update_size_heap(heap);
-	return (ptr);
+	return (pos);
 }
 
 //******************//
 //		REALLOC		//
 //******************//
 
-void	*ft_reallocate(t_heap *heap, void *ptr, size_t size)
+void	*ft_reallocate(t_heap *heap, void *pos, size_t size)
 {
 	(void) heap;
-	(void) ptr;
+	(void) pos;
 	(void) size;
 	return (NULL);
 }
 
-void	*ft_realloc(void *ptr, size_t size)
+void	*ft_realloc(void *pos, size_t size)
 {
-	if (ptr == NULL)
+	if (pos == NULL)
 		return (ft_malloc(size));
-	ptr -= E_OFFSET_META;
-	if ((*((size_t*)ptr) & E_GET_FLAGS) == E_FREE \
-			|| (*((size_t*)ptr) & E_GET_FLAGS) == E_RESIZE)
+	pos -= E_OFFSET_META;
+	if ((*((size_t*)pos) & E_GET_FLAGS) == E_FREE \
+			|| (*((size_t*)pos) & E_GET_FLAGS) == E_RESIZE)
 		return (NULL);
-	if (size <= D_TINY_SIZE &&  \
-			*((size_t*)ptr) >> E_OFFSET_FLAGS <= D_TINY_SIZE)
-		ptr = ft_reallocate_same_heap(malloc_data.tiny, ptr, size);
-	else if (size <= D_SMALL_SIZE &&  \
-			*((size_t*)ptr) >> E_OFFSET_FLAGS <= D_SMALL_SIZE)
-		ptr = ft_reallocate_same_heap(malloc_data.big, ptr, size);
-	else if (size > D_SMALL_SIZE &&  \
-			*((size_t*)ptr) >> E_OFFSET_FLAGS > D_SMALL_SIZE)
-		ptr = ft_reallocate_same_heap(malloc_data.big, ptr, size);
-	else if (size <= D_TINY_SIZE)
-		ptr = ft_reallocate(malloc_data.tiny, ptr, size);
-	else if (size <= D_SMALL_SIZE)
-		ptr = ft_reallocate(malloc_data.small, ptr, size);
+	else if ((*((size_t*)pos) & E_GET_FLAGS) == E_BIG)
+		return (ft_reallocate_big(malloc_data.big, pos, size));
+	if ((size <= D_TINY_SIZE &&  \
+			*((size_t*)pos) >> E_OFFSET_FLAGS <= D_TINY_SIZE)
+		|| 
+			(size <= D_SMALL_SIZE &&  \
+			*((size_t*)pos) >> E_OFFSET_FLAGS <= D_SMALL_SIZE))
+		pos = ft_realloc_same_heap(pos, size);
 	else
-		ptr = ft_reallocate(malloc_data.big, ptr, size);
-	return (ptr);
+		pos = ft_realloc_all(malloc_data.big, pos, size);
+	return (pos);
 }
 
 //******************//
 //		FREE		//
 //******************//
 
-static void ft_delete_heap_big(void *ptr)
+static void ft_delete_heap_big(void *pos)
 {
 	t_heap *current = malloc_data.big;
 	t_heap *previous = NULL;
-	t_heap *target = (t_heap *)((char *)ptr - E_OFFSET_META_BIG);
+	t_heap *target = (t_heap *)((char *)pos - E_OFFSET_META_BIG);
 
 	while (current)
 	{
@@ -132,14 +127,14 @@ static void	ft_check_heap_empty(size_t size)
 		malloc_data.small = ft_delete_heap_if_empty(malloc_data.small);
 }
 
-static void	ft_update_heap(size_t size, void *ptr)
+static void	ft_update_heap(size_t size, void *pos)
 {
 	t_heap	*heap;
 
 	if (size <= D_TINY_SIZE)
-		heap = ft_find_heap_via_ptr(malloc_data.tiny, ptr);
+		heap = ft_find_heap_via_ptr(malloc_data.tiny, pos);
 	else if (size <= D_SMALL_SIZE)
-		heap = ft_find_heap_via_ptr(malloc_data.small, ptr);
+		heap = ft_find_heap_via_ptr(malloc_data.small, pos);
 	size += E_OFFSET_META;
 	if (size % E_OFFSET_ALGIN > 0)
 		size += E_OFFSET_ALGIN - (size % E_OFFSET_ALGIN);
@@ -153,7 +148,7 @@ void	ft_free(void *ptr)
 	size_t	meta_data = *pos;
 	size_t	size = meta_data >> E_OFFSET_FLAGS;
 	size_t	flags = meta_data & E_GET_FLAGS;
-	if (meta_data == 0 || meta_data > 16289)
+	if (flags == E_BIG)
 		ft_delete_heap_big(ptr);
 	else
 	{
@@ -163,7 +158,7 @@ void	ft_free(void *ptr)
 			(void) flags; // todo error handling double free
 		*pos = size << E_OFFSET_FLAGS;
 		*pos += E_FREE;
-		ft_update_heap(size, ptr);
+		ft_update_heap(size, pos);
 		ft_check_heap_empty(size);
 	}
 }
