@@ -1,11 +1,6 @@
 
 #include "malloc.h"
 
-/*
- *	The ft_find_heap_via_ptr will find the heap where
- *	the ptr gived to it via the position of the meta data
- *	of this chunk
- */
 void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr)
 {
 	void	*search = heap;
@@ -52,10 +47,6 @@ bool	ft_heap_is_empty(t_heap *heap)
 	return (false);
 }
 
-/*
- * this function will check every heap to know if one
- * is empty or not
- */
 void *ft_delete_heap_if_empty(t_heap *heap)
 {
     t_heap *current = heap;
@@ -70,7 +61,6 @@ void *ft_delete_heap_if_empty(t_heap *heap)
                 heap = next;
 			else
                 previous->next = next;
-			printf("[%p] mmap removed\n", current);
             munmap(current, current->size);
         }
         else
@@ -79,4 +69,3 @@ void *ft_delete_heap_if_empty(t_heap *heap)
     }
     return (heap);
 }
-

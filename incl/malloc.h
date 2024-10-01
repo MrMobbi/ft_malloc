@@ -88,6 +88,8 @@ int		ft_put_unsinbr(unsigned int n);
 void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page);
 void	ft_update_size_heap(t_heap *heap);
 void	*ft_create_new_heap(t_heap *heap, size_t heap_size);
+bool	ft_is_tiny(size_t size);
+bool	ft_is_small(size_t size);
 
 //	utils_free.c
 void	*ft_delete_heap_if_empty(t_heap *heap);

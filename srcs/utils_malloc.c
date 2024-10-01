@@ -54,3 +54,13 @@ void	*ft_get_heap(t_heap *heap, size_t size, size_t size_page)
 	}
 	return (NULL);
 }
+
+bool	ft_is_tiny(size_t size)
+{
+	return (size <= D_TINY_SIZE);
+}
+
+bool	ft_is_small(size_t size)
+{
+	return (size <= D_SMALL_SIZE && size > D_TINY_SIZE);
+}

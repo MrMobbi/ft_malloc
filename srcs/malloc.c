@@ -40,9 +40,9 @@ void	*ft_malloc(size_t size)
 {
 	void	*pos;
 	void	*heap;
-	if (size <= D_TINY_SIZE)
+	if (ft_is_tiny(size))
 		heap = ft_find_heap(malloc_data.tiny, size);
-	else if (size <= D_SMALL_SIZE)
+	else if (ft_is_small(size))
 		heap = ft_find_heap(malloc_data.small, size);
 	else if (size > D_SMALL_SIZE)
 	{
@@ -64,14 +64,6 @@ void	*ft_malloc(size_t size)
 //		REALLOC		//
 //******************//
 
-void	*ft_reallocate(t_heap *heap, void *pos, size_t size)
-{
-	(void) heap;
-	(void) pos;
-	(void) size;
-	return (NULL);
-}
-
 void	*ft_realloc(void *pos, size_t size)
 {
 	if (pos == NULL)
@@ -82,11 +74,8 @@ void	*ft_realloc(void *pos, size_t size)
 		return (NULL);
 	else if ((*((size_t*)pos) & E_GET_FLAGS) == E_BIG)
 		return (ft_reallocate_big(malloc_data.big, pos, size));
-	if ((size <= D_TINY_SIZE &&  \
-			*((size_t*)pos) >> E_OFFSET_FLAGS <= D_TINY_SIZE)
-		|| 
-			(size <= D_SMALL_SIZE &&  \
-			*((size_t*)pos) >> E_OFFSET_FLAGS <= D_SMALL_SIZE))
+	if ((ft_is_tiny(size) && ft_is_tiny(*((size_t*)pos)) >> E_OFFSET_FLAGS) ||
+			(ft_is_small(size) && ft_is_small(*((size_t*)pos))))
 		pos = ft_realloc_same_heap(pos, size);
 	else
 		pos = ft_realloc_all(malloc_data.big, pos, size);

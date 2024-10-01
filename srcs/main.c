@@ -19,11 +19,8 @@ int main(void)
 	void	*tiny5 = ft_malloc(72);
 
 	show_alloc_mem();
-	big2 = ft_realloc(big2 ,10000);
-	tiny1 = ft_realloc(tiny1, 24);
-	printf("%p\n", tiny1);
-	small1 = ft_realloc(small1,250);
-	tiny2 = ft_realloc(tiny2, 250);
+	small1 = ft_realloc(small1, 9);
+	ft_free(big);
 	show_alloc_mem();
 	(void) tiny1;
 	(void) tiny2;
