@@ -5,10 +5,11 @@ ifeq ($(HOSTTYPE),)
 endif
 
 # COMPILATION
-CC			= gcc -fPIC
-FLAGS		= -Wall -Werror -Wextra -g
-LNFLAGS		= -shared
-FLAGS_DEBUG	= -fsanitize=address
+CC				= gcc 
+FLAGS			= -Wall -Werror -Wextra
+FLAGS_LIB		= -fpic -fPIC
+FLAGS_SHARED	= -shared
+FLAGS_DEBUG		= -g -fsanitize=address
 
 # EXECUTABLE
 NAME		= libft_malloc.so
@@ -21,7 +22,14 @@ OBJS_PATH	= objs
 INC_PATH	= -I incl
 
 	### SOURCES FILES ###
-SRCS		= malloc.c
+FILES		= malloc.c \
+			  utils.c \
+			  utils_malloc.c \
+			  utils_free.c \
+			  utils_realloc.c \
+			  show_mem.c \
+			  ft_new_chunk.c \
+			  ft_printf.c \
 
 TEST_FILES	= malloc.c \
 			  main.c \
@@ -35,9 +43,10 @@ TEST_FILES	= malloc.c \
 
 			  # OBJECT FILES
 
-OBJS		= $(addprefix $(OBJS_PATH)/, $(SRCS:.c=.o))
+SRCS		= $(addprefix $(SRCS_PATH)/, $(FILES))
+OBJS		= $(addprefix $(OBJS_PATH)/, $(FILES:.c=.o))
 
-SRCS_TEST	= $(addprefix $(SRCS_PATH)/ $(TEST_FILES))
+SRCS_TEST	= $(addprefix $(SRCS_PATH)/, $(TEST_FILES))
 OBJS_TEST	= $(addprefix $(OBJS_PATH)/, $(TEST_FILES:.c=.o))
 
 # COLORS
@@ -55,31 +64,29 @@ FCLEAN_TXT		= printf "$(RED) Deleting $(NAME)\n$(RESET)"
 NL_TXT			= printf "\n"
 
 # RULES
-all:		art tmp $(NAME)
+all:		art tmp $(NAME) link
 
 art:
 			@echo "TODO art"
 			@#tput setaf 2; cat .ascii_art/name; tput setaf default
 
-t:		tmp $(TEST_N)
+t:			tmp $(TEST_N)
 
 $(TEST_N):	$(OBJS_TEST)
-			$(CC) $(FLAGS_DEBUG) $(FLAGS) -o $@ $(OBJS_TEST)
+			$(CC) $(FLAGS) $(FLAGS_DEBUG) -o $(@) $(OBJS_TEST) 
 
-$(NAME):	$(HOSTLIB)
-			@ln -fs $(HOSTLIB) $(NAME)
-			@$(NL_TXT)
-			@$(END_TXT)
+$(NAME):	$(OBJS)
+			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) 
 
-$(HOSTLIB):	$(OBJS)
-			$(CC) $(LNFLAGS) $(INCL) -o $@ $(OBJS)
+link:
+			@ln -sf $(NAME) $(HOSTLIB)
 
 tmp:
 			@/bin/mkdir -p objs
 
 $(OBJS_PATH)/%.o:	$(SRCS_PATH)/%.c 
 					@/bin/mkdir -p $(@D)
-					@$(CC) $(FLAGS) $(FLAGS_DEBUG) $(INC_PATH) -c $< -o $@
+					@$(CC) $(FLAGS) $(FLAGS_LIB) $(INC_PATH) -c $< -o $@
 					@$(CHARG_LINE_TXT)
 
 clean:

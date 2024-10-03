@@ -61,6 +61,8 @@ static int	ft_sort(va_list args, char c)
 	count = 0;
 	if (c == 'd' || c == 'i')
 		count = ft_putnbr(va_arg(args, int));
+	if (c == 'D')
+		count = ft_putnbr_size_t(va_arg(args, size_t));
 	if (c == '%')
 		count = write(1, "%", 1);
 	if (c == 's')

@@ -34,7 +34,7 @@ static void	ft_print_chunk(void *ptr)
 	const	char	*reset = "\033[0m";
 	ft_print_color(4);
 	ft_print_color(*((size_t*)ptr) & E_GET_FLAGS);
-	printf("[%p - %p] : %ld bytes", ptr + E_OFFSET_META, \
+	ft_printf("[%p - %p] : %D bytes", ptr + E_OFFSET_META, \
 			ptr + E_OFFSET_META + ((*((size_t*)ptr) >> E_OFFSET_FLAGS) - 1), \
 			*((size_t*)ptr) >> E_OFFSET_FLAGS);
 	ft_print_flags(*((size_t*)ptr) & E_GET_FLAGS);
@@ -81,7 +81,7 @@ void	ft_show_block_big(t_heap *heap)
 	{
 		ptr = heap;
 		ft_write_color("\033[32m");
-		printf("[%p - %p] : %ld bytes\n", 
+		ft_printf("[%p - %p] : %D bytes\n", 
 				ptr + E_OFFSET_META_BIG,
 				ptr + heap->size,
 				heap->size - E_OFFSET_META_BIG);

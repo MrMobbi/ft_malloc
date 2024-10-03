@@ -82,6 +82,7 @@ size_t	ft_real_size_calculator(size_t size);
 int		ft_putchar(char c);
 int		ft_putstr(char *str);
 int		ft_putnbr(int n);
+size_t	ft_putnbr_size_t(size_t n);
 int		ft_put_unsinbr(unsigned int n);
 
 //	utils_malloc.c
@@ -99,7 +100,7 @@ void	*ft_find_heap_via_ptr(t_heap *heap, void *ptr);
 //	utils_realloc.c
 void	*ft_realloc_same_heap(void *pos, size_t size);
 void	*ft_realloc_same_big(void *pos, size_t size);
-void	*ft_reallocate_big(t_heap *heap, void *pos, size_t size);
+void	*ft_realloc_big(t_heap *heap, void *pos, size_t size);
 void	*ft_realloc_all(t_heap *heap, void *pos, size_t size);
 
 //	ft_printf.c

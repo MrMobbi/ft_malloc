@@ -20,6 +20,20 @@ size_t	ft_real_size_calculator(size_t size)
 	return (size);
 }
 
+size_t	ft_putnbr_size_t(size_t n)
+{
+	static int	count;
+
+	count = 0;
+	if (n > 9)
+	{
+		ft_putnbr(n / 10);
+		n = n % 10;
+	}
+	if (n < 10)
+		count += ft_putchar(n + '0');
+	return (count);
+}
 int	ft_putnbr(int n)
 {
 	static int	count;

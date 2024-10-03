@@ -39,14 +39,15 @@ void	*ft_realloc_same_heap(void *pos, size_t size)
 	{
 		if (ft_check_space(pos, size))
 			ft_resize_chunk(pos, size);
-		return (ft_realloc_new(pos, size, *((size_t*)pos) >> E_OFFSET_FLAGS));
+		else
+			return (ft_realloc_new(pos, size, *((size_t*)pos) >> E_OFFSET_FLAGS));
 	}
 	*((size_t*)pos) = size << E_OFFSET_FLAGS;
 	*((size_t*)pos) += E_IN_USE;
 	return (pos + E_OFFSET_META);
 }
 
-void	*ft_reallocate_big(t_heap *heap, void *pos, size_t size)
+void	*ft_realloc_big(t_heap *heap, void *pos, size_t size)
 {
 	heap = ft_find_heap_via_ptr(heap, pos);
 	if (size == heap->size)

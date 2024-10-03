@@ -73,7 +73,7 @@ void	*ft_realloc(void *pos, size_t size)
 			|| (*((size_t*)pos) & E_GET_FLAGS) == E_RESIZE)
 		return (NULL);
 	else if ((*((size_t*)pos) & E_GET_FLAGS) == E_BIG)
-		return (ft_reallocate_big(malloc_data.big, pos, size));
+		return (ft_realloc_big(malloc_data.big, pos, size));
 	if ((ft_is_tiny(size) && ft_is_tiny(*((size_t*)pos)) >> E_OFFSET_FLAGS) ||
 			(ft_is_small(size) && ft_is_small(*((size_t*)pos))))
 		pos = ft_realloc_same_heap(pos, size);
