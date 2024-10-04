@@ -63,9 +63,9 @@ typedef struct s_malloc_data
 }		t_malloc_data;
 
 //	malloc.c
-void	*ft_malloc(size_t size);
-void	*ft_realloc(void *ptr, size_t size);
-void	ft_free(void *ptr);
+void	*malloc(size_t size);
+void	*realloc(void *ptr, size_t size);
+void	free(void *ptr);
 void	show_alloc_mem(void);
 
 //	ft_new_chunk.c

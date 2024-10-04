@@ -14,10 +14,16 @@ static bool	ft_check_space(void *pos, size_t size)
 	return (true);
 }
 
+static void	*ft_go_metadata(void *ptr)
+{
+	ptr += E_OFFSET_META;
+	return (ptr);
+}
+
 static void	*ft_realloc_new(void *pos, size_t new_size, size_t old_size)
 {
-	void	*new = ft_malloc(new_size);
-	pos += E_OFFSET_META;
+	void	*new = malloc(new_size);
+	pos = ft_go_metadata(pos);
 
 	if (old_size > new_size)
 		for (size_t i = 0; i < new_size; i++)
@@ -25,7 +31,7 @@ static void	*ft_realloc_new(void *pos, size_t new_size, size_t old_size)
 	else 
 		for (size_t i = 0; i < old_size; i++)
 			((unsigned char*)new)[i] = ((unsigned char*)pos)[i];
-	ft_free(pos);
+	free(pos);
 	return (new);
 }
 

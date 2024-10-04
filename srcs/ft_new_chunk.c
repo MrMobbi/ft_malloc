@@ -60,7 +60,7 @@ static void	*ft_go_next_free_space(void *pos, size_t size)
 static void	ft_free_inbetween(void *pos, size_t new_size, size_t old_size)
 {
 	pos += new_size + E_OFFSET_META;
-	*((size_t*)pos) = (old_size - new_size) << E_OFFSET_FLAGS;
+	*((size_t*)pos) = (old_size - new_size - E_OFFSET_META) << E_OFFSET_FLAGS;
 	*((size_t*)pos) += E_RESIZE;
 }
 

@@ -14,7 +14,6 @@ FLAGS_DEBUG		= -g -fsanitize=address
 # EXECUTABLE
 NAME		= libft_malloc.so
 HOSTLIB		= libft_malloc_$(HOSTTYPE).so
-TEST_N		= malloc_test
 
 # PATH
 SRCS_PATH	= srcs
@@ -31,23 +30,10 @@ FILES		= malloc.c \
 			  ft_new_chunk.c \
 			  ft_printf.c \
 
-TEST_FILES	= malloc.c \
-			  main.c \
-			  utils.c \
-			  utils_malloc.c \
-			  utils_free.c \
-			  utils_realloc.c \
-			  show_mem.c \
-			  ft_new_chunk.c \
-			  ft_printf.c \
-
 			  # OBJECT FILES
 
 SRCS		= $(addprefix $(SRCS_PATH)/, $(FILES))
 OBJS		= $(addprefix $(OBJS_PATH)/, $(FILES:.c=.o))
-
-SRCS_TEST	= $(addprefix $(SRCS_PATH)/, $(TEST_FILES))
-OBJS_TEST	= $(addprefix $(OBJS_PATH)/, $(TEST_FILES:.c=.o))
 
 # COLORS
 RED			= \033[1;31m
@@ -70,10 +56,6 @@ art:
 			@echo "TODO art"
 			@#tput setaf 2; cat .ascii_art/name; tput setaf default
 
-t:			tmp $(TEST_N)
-
-$(TEST_N):	$(OBJS_TEST)
-			$(CC) $(FLAGS) $(FLAGS_DEBUG) -o $(@) $(OBJS_TEST) 
 
 $(NAME):	$(OBJS)
 			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) 
@@ -97,15 +79,18 @@ clean:
 fclean:		clean
 			@$(FCLEAN_TXT)
 			@rm -rf $(NAME) $(HOSTLIB) $(TEST_N)
+			@rm -rf test
 			@echo "TODO fclean art"
 			@$(NL_TXT)
 
 re:			fclean all
 
-rt:			fclean t
+rt:			fclean all test t
 
-tests:
-			@# Ensures that the exit status of the command is always considered successful
-			@echo "TODO tests"
+test:
+			$(CC) $(FLAGS) -o test test.c -L. -lft_malloc -I./incl
 
-.PHONY:		clean fclean tmp re all tests
+t:
+			LD_LIBRARY_PATH=. ./test
+
+.PHONY:		clean fclean tmp re all test link

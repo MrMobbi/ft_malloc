@@ -5,11 +5,11 @@
 static void	ft_print_flags(size_t flags)
 {
 	if (flags == E_FREE)
-		printf(" | chunk free\n");
+		ft_printf(" | chunk free\n");
 	else if (flags == E_IN_USE)
-		printf(" | chunk in use\n");
+		ft_printf(" | chunk in use\n");
 	else if (flags == E_RESIZE)
-		printf(" | chunk resized\n");
+		ft_printf(" | chunk resized\n");
 }
 
 static void	ft_write_color(char *color)

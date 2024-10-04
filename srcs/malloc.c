@@ -36,7 +36,7 @@ static void	*ft_find_heap(t_heap *heap, size_t size)
 		return (ft_get_heap(heap, size, page_size));
 }
 
-void	*ft_malloc(size_t size)
+void	*malloc(size_t size)
 {
 	void	*pos;
 	void	*heap;
@@ -64,10 +64,10 @@ void	*ft_malloc(size_t size)
 //		REALLOC		//
 //******************//
 
-void	*ft_realloc(void *pos, size_t size)
+void	*realloc(void *pos, size_t size)
 {
 	if (pos == NULL)
-		return (ft_malloc(size));
+		return (malloc(size));
 	pos -= E_OFFSET_META;
 	if ((*((size_t*)pos) & E_GET_FLAGS) == E_FREE \
 			|| (*((size_t*)pos) & E_GET_FLAGS) == E_RESIZE)
@@ -131,7 +131,7 @@ static void	ft_update_heap(size_t size, void *pos)
 }
 
 
-void	ft_free(void *ptr)
+void	free(void *ptr)
 {
 	size_t	*pos = ptr - E_OFFSET_META;
 	size_t	meta_data = *pos;
@@ -143,8 +143,8 @@ void	ft_free(void *ptr)
 	{
 		if (flags == E_IN_USE)
 			flags = E_FREE;
-		else if (flags == E_FREE)
-			(void) flags; // todo error handling double free
+		else if (flags == E_FREE || flags == E_RESIZE)
+			return ;
 		*pos = size << E_OFFSET_FLAGS;
 		*pos += E_FREE;
 		ft_update_heap(size, pos);
