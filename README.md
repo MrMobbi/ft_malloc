@@ -1,4 +1,53 @@
-# ft_malloc
+# Custom `malloc` Implementation
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Understanding Memory Allocation](#understanding-memory-allocation)
+3. [Design of Your `malloc` Implementation](#design-of-your-malloc-implementation)
+    - [Metadata Management](#metadata-management)
+    - [Free List Management](#free-list-management)
+4. [Code Walkthrough](#code-walkthrough)
+5. [Performance Considerations](#performance-considerations)
+6. [Testing Your `malloc`](#testing-your-malloc)
+7. [How to Use](#how-to-use)
+8. [License](#license)
+
+---
+
+## Introduction
+This project is a custom implementation of the `malloc` function in C, designed to manage memory allocation without relying on the standard library version. This README explains the thought process behind the design, key features of the implementation, and how to use and test it.
+
+## Understanding Memory Allocation
+In C, dynamic memory allocation allows programs to request memory at runtime using functions like `malloc`, `calloc`, `realloc`, and `free`. This section explains the basics of how memory is managed in a typical system, why `malloc` is necessary, and common strategies for handling memory allocation and deallocation.
+
+## Design of Your `malloc` Implementation
+The design of this custom `malloc` function follows a straightforward approach to memory management.
+
+### Metadata Management
+Explain how you manage metadata for each allocated block (e.g., block size, flags, pointers to next/previous blocks).
+
+### Free List Management
+Describe the technique you use to track free blocks of memory (e.g., a free list, binning strategy, etc.).
+
+## Code Walkthrough
+This section breaks down the core functions and data structures in the code:
+
+- `malloc(size_t size)`: Requests a block of memory from the heap.
+- `free(void *ptr)`: Returns a previously allocated block of memory.
+- `realloc(void *ptr, size_t new_size)`: Resizes a previously allocated block of memory.
+
+Explain each of the key functions step-by-step, showing code snippets as necessary.
+
+```c
+// Example code block
+void *malloc(size_t size) {
+    // Code logic here
+}
+
+
+
+
+## ft_malloc
 
 void    *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
 
