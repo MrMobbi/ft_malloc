@@ -1,22 +1,24 @@
 # Custom `malloc` Implementation
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Memory Allocation](#understanding-memory-allocation)
-   - [Static memory allocation](#static-memory-allocation)
-   - [Dynamic memory allocation](#dynamic-memory-allocation)
-   - [Mmap allocution](#mmap-allocution)
-4. [Design of Your `malloc` Implementation](#design-of-your-malloc-implementation)
-    - [Use of Mmap](#use-of-mmap)
-    - [Metadata Management](#metadata-management)
-    - [Free List Management](#free-list-management)
-5. [Code Walkthrough](#code-walkthrough)
-7. [Testing Your `malloc`](#testing-your-malloc)
-8. [How to Use](#how-to-use)
+1. [Introduction](#1-introduction)
+2. [Understanding Memory Allocation](#2-understanding-memory-allocation)
+   - 2.1 [Static Memory Allocation](#21-static-memory-allocation)
+   - 2.2 [Dynamic Memory Allocation](#22-dynamic-memory-allocation)
+   - 2.3 [Mmap Allocution](#23-mmap-allocution)
+3. [Design of Your `malloc` Implementation](#3-design-of-your-malloc-implementation)
+    - 3.1 [Use of Mmap](#31-use-of-mmap)
+    - 3.2 [Heap Structure](#32-heap-structure)
+    - 3.3 [Structure Management](#33-structure-management)
+    - 3.4 [Metadata Management](#34-metadata-management)
+    - 3.5 [Free List Management](#35-free-list-management)
+4. [Code Walkthrough](#code-walkthrough)
+5. [Testing Your `malloc`](#testing-your-malloc)
+6. [How to Use](#how-to-use)
 
 ---
 
-## Introduction
+## 1 Introduction
 This project is a custom implementation of the malloc function in C, developed entirely independently of the standard C library. 
 The primary objective was to recreate the memory allocation functionality by utilizing the mmap system call, enabling efficient management of dynamic memory.
 
@@ -24,15 +26,17 @@ In this implementation, I have designed three distinct heap regions to cater to 
 Each heap serves specific size requirements, optimizing memory usage and performance for various scenarios. 
 This structured approach allows for more granular control over memory management, enhancing the efficiency of dynamic memory allocation in C.
 
+The subject can be found here : [malloc.pdf](https://github.com/MrMobbi/ft_malloc/blob/main/doc/malloc.pdf)
+
 This README explains the thought process behind the design, key features of the implementation, and how to use and test it.
 
-## Understanding Memory Allocation
+## 2 Understanding Memory Allocation
 
 Memory allocation in C refers to the process of reserving or assigning memory to variables, data structures, or arrays during the execution of a program. 
 This can be divided into two main categories: **static memory allocation** and **dynamic memory allocation**. 
 Understanding memory allocation is crucial because memory management is a fundamental part of how C programs work.
 
-### Static memory allocation
+### 2.1 Static Memory Allocation
 
 Static memory allocation occurs before program execution. Memory for global variables, static variables, and constants (e.g., literals) is allocated statically. 
 The size and location of this memory are determined at compile-time, and it does not change during the program’s lifetime.
@@ -42,7 +46,7 @@ The size and location of this memory are determined at compile-time, and it does
 - **Automatically freed:** The memory is freed when the program terminates or when the scope of the variable ends.
 - **Usage:** Static or global variables, arrays declared with fixed sizes, etc.
 
-### Dynamic memory allocation
+### 2.2 Dynamic Memory Allocation
 
 Dynamic memory allocation allows memory to be allocated at runtime (while the program is running) rather than at compile-time. 
 This is essential for creating flexible data structures like linked lists, trees, and graphs, where memory requirements can change dynamically.
@@ -71,7 +75,7 @@ void free(void *ptr);
 - **Flexible:** You can allocate memory of any size during runtime.
 - **Manual management:** You are responsible for allocating and freeing memory.
 
-### Mmap allocution
+### 2.3 Mmap Allocution
 The mmap function in C is a system call that maps files or devices into memory, allowing programs to access these files through memory pointers. This provides a more efficient way to handle file I/O compared to traditional methods, as it allows direct reading and writing to memory addresses without needing intermediate buffers. Here’s a brief explanation of how mmap works:
 
 **Key Features of mmap:**
@@ -99,10 +103,10 @@ anonymous mappings that are not associated with any file and can be used for dyn
 **Usage in Custom Memory Allocation:** In custom implementations of memory allocation, like **malloc**, 
 mmap can be used to request large blocks of memory directly from the operating system.
     
-## Design of Your `malloc` Implementation
+## 3 Design of Your `malloc` Implementation
 The design of this custom `malloc` function follows a straightforward approach to memory management.
 
-### Use of Mmap
+### 3.1 Use of Mmap
 ```c
 void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
 ```
@@ -133,12 +137,32 @@ In the context of our malloc implementation, we will use MAP_PRIVATE.
 This ensures that if a process forks, the data remains private and will be copied, preventing shared access. 
 If MAP_SHARED were used, both processes would have access to the same data, which could lead to unintended modifications.
 
-### Heap structure
+**int fildes:** Is set to NULL, no file is used.
 
+**off_f:** Is set to NULL, no offset used for the heap.
 
-### Structure Management
+### 3.2 Heap structure
+The heap is divided into three distinct segments to optimize the number of calls to the mmap function. 
+This separation into three different mappings is in accordance with the project specifications, 
+which outline the requirements for efficient memory management.
 
-This structcure is where all my heap will be stored and is accessible from a global variable on the malloc.c file 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/MrMobbi/ft_malloc/refs/heads/main/doc/2024-10-07-12%3A26%3A20-screenshot.png" alt="Logo" width: 300px; height: 100px;" > 
+</p>
+
+**Tiny :** 
+ - Page Size(N) = 8192 / 0x2000 bytes
+ - Max allocution(n) = 72 bytes + 8 bytes for metadata 
+
+**Small :**
+- Page size(M) = 409600 / 0x64000 bytes
+- Max allocation(m) = 4072 bytes + 8 bytes for metada
+
+**Big :**
+- Allocation start = over 4072
+
+### 3.3 Structure Management
+
 ```c
 // this struct is 24 bytes long
 typedef struct s_malloc_data
@@ -148,14 +172,10 @@ typedef struct s_malloc_data
 	t_heap	*big;
 }		t_malloc_data;
 ```
-```c
-// this struct is 16 bytes long
-typedef struct s_chunk
-{
-	size_t		size;
-	struct s_chunk	*next;
-}		t_chunk;
-```
+The **t_malloc_data** structure serves as a central management entity for the custom memory allocator. 
+It holds pointers to three different heap segments—TINY, SMALL, and BIG—each designated for handling specific sizes of memory allocations. 
+This organization helps optimize memory usage by categorizing allocation requests based on their size requirements. 
+The total size of this structure is 24 bytes, allowing for efficient memory management while providing quick access to the various heap segments.
 ```c
 // this struct is 24 bytes long
 typedef struct s_heap
@@ -165,12 +185,29 @@ typedef struct s_heap
 	struct s_heap	*next;
 }		t_heap;
 ```
+The **t_heap** structure represents an individual heap segment within the allocator. 
+It contains a size field indicating the total allocated size of the heap and a size_used field to track the amount of memory that has been allocated from that segment. 
+Additionally, it includes a pointer to the next heap segment, enabling the implementation of a linked list structure for efficient traversal and management of heap segments. 
+The size of this structure is also 24 bytes.
+```c
+// this struct is 16 bytes long
+typedef struct s_chunk
+{
+	size_t		size;
+	struct s_chunk	*next;
+}		t_chunk;
+```
+The **t_chunk** structure represents a specific block of memory allocated from a heap segment. 
+It contains a size field that indicates the size of the memory chunk and a next pointer that facilitates the creation of a linked list of memory chunks. 
+This allows for efficient management and traversal of allocated memory blocks within the heap. 
+The total size of this structure is 16 bytes.
 
 
-### Metadata Management
+
+### 3.4 Metadata Management
 Explain how you manage metadata for each allocated block (e.g., block size, flags, pointers to next/previous blocks).
 
-### Free List Management
+### 3.5 Free List Management
 Describe the technique you use to track free blocks of memory (e.g., a free list, binning strategy, etc.).
 
 ## Code Walkthrough
