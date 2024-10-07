@@ -13,9 +13,7 @@
     - 3.4 [Metadata Management](#34-metadata-management)
    		- 3.4.1 [Metadata and how to navigate through the heap](#341-metadata-and-how-to-navigate-through-the-heap)
     - 3.5 [Free List Management](#35-free-list-management)
-4. [Code Walkthrough](#code-walkthrough)
-5. [Testing Your `malloc`](#testing-your-malloc)
-6. [How to Use](#how-to-use)
+4. [Testing Your `malloc`](#testing-your-malloc)
 
 ---
 
@@ -346,19 +344,8 @@ Each chunk in the heap will have its state tracked by one or more of these flags
 The `E_GET_FLAGS` mask is useful in cases where you need to check the current state of a chunk, allowing you to perform bitwise checks on the flags.
 
 ### 3.5 Free List Management
-Describe the technique you use to track free blocks of memory (e.g., a free list, binning strategy, etc.).
-
-## Code Walkthrough
-This section breaks down the core functions and data structures in the code:
-
-```c
-- `malloc(size_t size)`: Requests a block of memory from the heap.
-- `free(void *ptr)`: Returns a previously allocated block of memory.
-- `realloc(void *ptr, size_t new_size)`: Resizes a previously allocated block of memory.
-```
-```
-
-
-
-
-
+When a pointer is passed to the `free` function, it marks the chunk’s metadata flag as `E_FREE`, 
+indicating that the memory is no longer in use. If the freed chunk belongs to a big heap, 
+the system will immediately **munmap** the memory using `munmap`. However, 
+if the chunk is part of a `small` or `tiny` heap, the heap is resized, 
+and the allocator checks all chunks within the heap. If no chunks remain in use (`E_IN_USE`), the entire heap is unmapped from memory.
