@@ -17,8 +17,13 @@
 ---
 
 ## Introduction
-This project is a custom implementation of the `malloc` function in C, designed to manage memory allocation without relying on the standard library version.
-This project have been created by 42 to 
+This project is a custom implementation of the malloc function in C, developed entirely independently of the standard C library. 
+The primary objective was to recreate the memory allocation functionality by utilizing the mmap system call, enabling efficient management of dynamic memory.
+
+In this implementation, I have designed three distinct heap regions to cater to different memory allocation needs: **TINY**, **SMALL**, and **BIG**. 
+Each heap serves specific size requirements, optimizing memory usage and performance for various scenarios. 
+This structured approach allows for more granular control over memory management, enhancing the efficiency of dynamic memory allocation in C.
+
 This README explains the thought process behind the design, key features of the implementation, and how to use and test it.
 
 ## Understanding Memory Allocation
