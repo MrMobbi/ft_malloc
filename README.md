@@ -3,25 +3,164 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Understanding Memory Allocation](#understanding-memory-allocation)
-3. [Design of Your `malloc` Implementation](#design-of-your-malloc-implementation)
+   - [Static memory allocation](#static-memory-allocation)
+   - [Dynamic memory allocation](#dynamic-memory-allocation)
+   - [Mmap allocution](#mmap-allocution)
+4. [Design of Your `malloc` Implementation](#design-of-your-malloc-implementation)
+    - [Use of Mmap](#use-of-mmap)
     - [Metadata Management](#metadata-management)
     - [Free List Management](#free-list-management)
-4. [Code Walkthrough](#code-walkthrough)
-5. [Performance Considerations](#performance-considerations)
-6. [Testing Your `malloc`](#testing-your-malloc)
-7. [How to Use](#how-to-use)
-8. [License](#license)
+5. [Code Walkthrough](#code-walkthrough)
+7. [Testing Your `malloc`](#testing-your-malloc)
+8. [How to Use](#how-to-use)
 
 ---
 
 ## Introduction
-This project is a custom implementation of the `malloc` function in C, designed to manage memory allocation without relying on the standard library version. This README explains the thought process behind the design, key features of the implementation, and how to use and test it.
+This project is a custom implementation of the `malloc` function in C, designed to manage memory allocation without relying on the standard library version.
+This project have been created by 42 to 
+This README explains the thought process behind the design, key features of the implementation, and how to use and test it.
 
 ## Understanding Memory Allocation
-In C, dynamic memory allocation allows programs to request memory at runtime using functions like `malloc`, `calloc`, `realloc`, and `free`. This section explains the basics of how memory is managed in a typical system, why `malloc` is necessary, and common strategies for handling memory allocation and deallocation.
 
+Memory allocation in C refers to the process of reserving or assigning memory to variables, data structures, or arrays during the execution of a program. 
+This can be divided into two main categories: **static memory allocation** and **dynamic memory allocation**. 
+Understanding memory allocation is crucial because memory management is a fundamental part of how C programs work.
+
+### Static memory allocation
+
+Static memory allocation occurs before program execution. Memory for global variables, static variables, and constants (e.g., literals) is allocated statically. 
+The size and location of this memory are determined at compile-time, and it does not change during the program’s lifetime.
+
+**Characteristics:**
+- **Fixed size:** Once allocated, the memory cannot grow or shrink.
+- **Automatically freed:** The memory is freed when the program terminates or when the scope of the variable ends.
+- **Usage:** Static or global variables, arrays declared with fixed sizes, etc.
+
+### Dynamic memory allocation
+
+Dynamic memory allocation allows memory to be allocated at runtime (while the program is running) rather than at compile-time. 
+This is essential for creating flexible data structures like linked lists, trees, and graphs, where memory requirements can change dynamically.
+
+Key Functions:
+```c
+void* malloc(size_t size);
+```
+- Returns a pointer to the allocated memory, or NULL if it fails.
+- Memory is not initialized (contains garbage values).
+```c
+void* calloc(size_t num_elements, size_t element_size);
+```
+- Allocates memory for an array of elements, and initializes them to zero.
+```c
+void* realloc(void *ptr, size_t new_size);
+```
+- Resizes previously allocated memory.
+```c
+void free(void *ptr);
+```
+- Frees dynamically allocated memory, returning it to the system for reuse.
+
+**Characteristics:**
+
+- **Flexible:** You can allocate memory of any size during runtime.
+- **Manual management:** You are responsible for allocating and freeing memory.
+
+### Mmap allocution
+The mmap function in C is a system call that maps files or devices into memory, allowing programs to access these files through memory pointers. This provides a more efficient way to handle file I/O compared to traditional methods, as it allows direct reading and writing to memory addresses without needing intermediate buffers. Here’s a brief explanation of how mmap works:
+
+**Key Features of mmap:**
+
+**Memory Mapping:** mmap creates a mapping between a file or a device and a portion of the process's virtual memory. 
+This means that the file content can be accessed like an array in memory.
+
+**Parameters:** The function takes several parameters:
+- **addr:** Specifies where the mapping starts. If NULL, the kernel chooses the address.
+- **len:** The number of bytes to be mapped.
+- **prot:** Memory protection flags (e.g., PROT_READ, PROT_WRITE).
+- **flags:** Controls the type of mapping (e.g., MAP_PRIVATE, MAP_SHARED).
+- **fildes:** The file descriptor of the file to be mapped.
+- **off:** The offset in the file where mapping begins.
+
+**Performance:** Using mmap can improve performance by reducing the overhead associated with system calls for reading and writing files. 
+It allows applications to operate on files as if they are directly manipulating memory.
+
+**Shared vs. Private Mappings:** Depending on the flags used, changes made to the memory-mapped region can be shared among processes (MAP_SHARED) 
+or kept private to the process (MAP_PRIVATE), which is particularly useful for forked processes.
+
+**File-backed vs. Anonymous Mapping:** mmap can create mappings that are backed by files (file-backed mapping) or 
+anonymous mappings that are not associated with any file and can be used for dynamic memory allocation.
+
+**Usage in Custom Memory Allocation:** In custom implementations of memory allocation, like **malloc**, 
+mmap can be used to request large blocks of memory directly from the operating system.
+    
 ## Design of Your `malloc` Implementation
 The design of this custom `malloc` function follows a straightforward approach to memory management.
+
+### Use of Mmap
+```c
+void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
+```
+**Parameters:**
+
+__void *addr:__ This parameter specifies the address where the mapping will begin.
+If NULL is passed, the system will choose a random available address. It can also be specified explicitly, such as 0xFEED02A.
+
+**size_t len:** This defines the length of the mapping in bytes. A standard memory page size is typically 4096 bytes (4 KB).
+
+**int prot:** This parameter specifies the memory protection of the mapped region. There are four protection options:
+- **PROT_READ:** The data can be read.
+- **PROT_WRITE:** The data can be written.
+- **PROT_EXEC:** The data can be executed.
+- **PROT_NONE:** The data cannot be accessed.
+
+For our custom malloc implementation, we want the allocated memory to be both readable and writable, 
+so we use the combination of PROT_READ | PROT_WRITE. Using PROT_NONE is useful for preventing access to certain memory regions. 
+For example, placing a PROT_NONE page before the start of the heap can help mitigate the impact of potential overflows, 
+causing a segmentation fault if memory is accessed incorrectly.
+
+**int flags:** This parameter controls the behavior of the mapped memory. The three primary flags are:
+- MAP_SHARED: Changes made to the mapping are shared across all processes.
+- MAP_PRIVATE: Changes made to the mapping are private to the process.
+- MAP_FIXED: The mapping is done at the exact address specified by addr.
+
+In the context of our malloc implementation, we will use MAP_PRIVATE. 
+This ensures that if a process forks, the data remains private and will be copied, preventing shared access. 
+If MAP_SHARED were used, both processes would have access to the same data, which could lead to unintended modifications.
+
+### Heap structure
+
+
+### Structure Management
+
+This structcure is where all my heap will be stored and is accessible from a global variable on the malloc.c file 
+```c
+// this struct is 24 bytes long
+typedef struct s_malloc_data
+{
+	t_heap	*tiny;
+	t_heap	*small;
+	t_heap	*big;
+}		t_malloc_data;
+```
+```c
+// this struct is 16 bytes long
+typedef struct s_chunk
+{
+	size_t		size;
+	struct s_chunk	*next;
+}		t_chunk;
+```
+```c
+// this struct is 24 bytes long
+typedef struct s_heap
+{
+	size_t	size;
+	size_t	size_used;
+	struct s_heap	*next;
+}		t_heap;
+```
+
 
 ### Metadata Management
 Explain how you manage metadata for each allocated block (e.g., block size, flags, pointers to next/previous blocks).
@@ -32,9 +171,11 @@ Describe the technique you use to track free blocks of memory (e.g., a free list
 ## Code Walkthrough
 This section breaks down the core functions and data structures in the code:
 
+```c
 - `malloc(size_t size)`: Requests a block of memory from the heap.
 - `free(void *ptr)`: Returns a previously allocated block of memory.
 - `realloc(void *ptr, size_t new_size)`: Resizes a previously allocated block of memory.
+```
 
 Explain each of the key functions step-by-step, showing code snippets as necessary.
 
@@ -43,36 +184,9 @@ Explain each of the key functions step-by-step, showing code snippets as necessa
 void *malloc(size_t size) {
     // Code logic here
 }
+```
 
 
 
 
-## ft_malloc
 
-void    *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
-
-void *addr: 
-The address where the map will begin, If NULL is specified it will take a random memory address, it can also be specified like this "FEED02A".
-
-size_t len:
-It's the len of the Pages what where are going to create. A standard page is 4096 bytes.
-
-int prot:
-this is the protection of the memory what we want. it exist 4 different protection :
-PROT_READ   = Data can be read.
-PROT_WRITE  = Data can be written.
-PROT_EXEC   = Data can be executed.
-PROT_NONE   = Data can be accessed.
-
-For malloc we want our data to be read and writable so the protection will be PROT_READ | PROT_WRITE
-
-the PROT_NONE is usefull because if data will be accessed and is none the programe will seg fault. it is use to have a page of NONE before the start of the heap like this if there is an oferflow somewhere the heap will not be accessible.
-
-int flags:
-This parameter is about the handling of the mapped data. There is 3 different flags:
-
-MAP_SHARED  = changes are shared.
-MAP_PRIVATE = changes are private.
-MAP_FIXED   = Interpret addr exactly.
-
-For malloc we will use MAP_PRIVATE because in case of a fork the data will remain private for each process and so it will be copied. if the flags was MAP_SHARED both process will have the same data.
