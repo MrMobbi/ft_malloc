@@ -95,10 +95,10 @@ re:			fclean all
 
 rt:			fclean all test t
 
-test:
-			$(CC) $(FLAGS) -o test test.c -L. -lft_malloc -I./incl
+test:		t
+			LD_LIBRARY_PATH=. ./test
 
 t:
-			LD_LIBRARY_PATH=. ./test
+			$(CC) $(FLAGS) -o test test.c -L. -lft_malloc -I./incl
 
 .PHONY:		clean fclean tmp re all test link
