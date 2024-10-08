@@ -43,25 +43,34 @@ RESET		= \033[0m
 
 # TEXTES
 START_TXT		= printf "$(CYAN)=== Compiling lib_malloc ===\n$(RESET)"
+LINK_TXT		= printf "$(CYAN)=== Linking lib_malloc ===\n$(RESET)"
 END_TXT			= printf "$(GREEN)=== lib_malloc Compilated ===\n$(RESET)"
+LINK_END_TXT	= printf "$(GREEN)=== lib_malloc have been linked ===\n$(RESET)"
 CHARG_LINE_TXT	= printf "$(GREEN)█$(RESET)"
 CLEAN_TXT		= printf "$(RED) Deleting all files\n$(RESET)"
 FCLEAN_TXT		= printf "$(RED) Deleting $(NAME)\n$(RESET)"
 NL_TXT			= printf "\n"
 
 # RULES
-all:		art tmp $(NAME) link
+all:		art tmp start $(NAME) link
+
+start:
+			@$(START_TXT)
 
 art:
-			@echo "TODO art"
-			@#tput setaf 2; cat .ascii_art/name; tput setaf default
+			@tput setaf 2; cat doc/ascii_art/name; tput sgr0
+			@tput setaf 2; cat doc/ascii_art/project; tput sgr0
 
 
 $(NAME):	$(OBJS)
+			@$(NL_TXT)
 			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) 
+			@$(END_TXT)
 
 link:
-			@ln -sf $(NAME) $(HOSTLIB)
+			@$(LINK_TXT)
+			ln -sf $(NAME) $(HOSTLIB)
+			@$(LINK_END_TXT)
 
 tmp:
 			@/bin/mkdir -p objs
@@ -73,14 +82,13 @@ $(OBJS_PATH)/%.o:	$(SRCS_PATH)/%.c
 
 clean:
 			@$(CLEAN_TXT)
-			@echo "TODO clean art"
+			@tput setaf 1; cat doc/ascii_art/trash; tput sgr0
 			@rm -rf $(OBJS_PATH)
 
 fclean:		clean
 			@$(FCLEAN_TXT)
 			@rm -rf $(NAME) $(HOSTLIB) $(TEST_N)
 			@rm -rf test
-			@echo "TODO fclean art"
 			@$(NL_TXT)
 
 re:			fclean all
