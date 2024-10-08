@@ -13,8 +13,7 @@
     - 3.4 [Metadata Management](#34-metadata-management)
    		- 3.4.1 [Metadata and how to navigate through the heap](#341-metadata-and-how-to-navigate-through-the-heap)
     - 3.5 [Free List Management](#35-free-list-management)
-4. [Testing Your `malloc`](#testing-your-malloc)
-
+    - 3.6 [Show Alloc Memory](#36-show-alloc-memory)
 ---
 
 ## 1 Introduction
@@ -349,3 +348,16 @@ indicating that the memory is no longer in use. If the freed chunk belongs to a 
 the system will immediately **munmap** the memory using `munmap`. However, 
 if the chunk is part of a `small` or `tiny` heap, the heap is resized, 
 and the allocator checks all chunks within the heap. If no chunks remain in use (`E_IN_USE`), the entire heap is unmapped from memory.
+
+### 3.6 Show Alloc Memory
+
+The `show_alloc_mem` function iterates through all the heaps and displays the current state of memory allocation, 
+providing a clear overview of how memory is being managed, including details about allocated and free chunks.
+
+
+
+
+
+
+
+
