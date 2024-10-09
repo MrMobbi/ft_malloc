@@ -6,6 +6,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdbool.h>
+# include <pthread.h>
 # include <stdint.h>
 # include <sys/mman.h>
 # include <stdarg.h>
@@ -39,13 +40,6 @@ enum e_flag_metadata
 	E_GET_FLAGS = 7,
 };
 
-// this struct is 16 bytes long
-typedef struct s_chunk
-{
-	size_t		size;
-	struct s_chunk	*next;
-}		t_chunk;
-
 // this struct is 24 bytes long
 typedef struct s_heap
 {
@@ -60,6 +54,10 @@ typedef struct s_malloc_data
 	t_heap	*tiny;
 	t_heap	*small;
 	t_heap	*big;
+	pthread_mutex_t	mutex_malloc;
+	pthread_mutex_t	mutex_free;
+	pthread_mutex_t	mutex_realloc;
+	pthread_mutex_t	mutex_show;
 }		t_malloc_data;
 
 //	malloc.c

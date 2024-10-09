@@ -7,7 +7,7 @@ endif
 # COMPILATION
 CC				= gcc 
 FLAGS			= -Wall -Werror -Wextra
-FLAGS_LIB		= -fpic -fPIC
+FLAGS_LIB		= -fpic -fPIC 
 FLAGS_SHARED	= -shared
 FLAGS_DEBUG		= -g -fsanitize=address
 
@@ -64,7 +64,7 @@ art:
 
 $(NAME):	$(OBJS)
 			@$(NL_TXT)
-			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) 
+			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) -lpthread
 			@$(END_TXT)
 
 link:
@@ -100,17 +100,31 @@ re:			fclean all
 
 rt:			fclean all test t
 
-test:		all t
-			LD_LIBRARY_PATH=. ./test
+test:
+			cp test_folder/test.c test.c
+			gcc -o test test.c -L. -lft_malloc && ./run_linux.sh ./test
+			@rm test.c test
 
-t:
-			gcc -o test test.c -L. -lft_malloc && ./run_linux.sh test
+test0:
+			cp test_folder/test0.c test0.c
+			gcc -o test0 test0.c && ./run_linux.sh /usr/bin/time -v ./test0
+			@rm test0.c test0
 
 test1:
+			cp test_folder/test1.c test1.c
 			gcc -o test1 test1.c && /usr/bin/time -v ./test1
 			./run_linux.sh /usr/bin/time -v ./test1
+			@rm test1.c test1
 
 test2:
+			cp test_folder/test2.c test2.c
 			gcc -o test2 test2.c && ./run_linux.sh /usr/bin/time -v ./test2
+			@rm test2.c test2
 
-.PHONY:		clean fclean tmp re all test test1 link
+test_thread:
+			cp test_folder/test_thread.c test_thread.c
+			gcc -o test_thread test_thread.c -L. -lft_malloc -lpthread
+			./run_linux.sh ./test_thread
+			@rm test_thread.c test_thread
+
+.PHONY:		clean fclean tmp re all test test0 test1 test1 test_thread link
