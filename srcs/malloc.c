@@ -108,14 +108,6 @@ static void ft_delete_heap_big(void *pos)
 	}
 }
 
-static void	ft_check_heap_empty(size_t size)
-{
-	if (size <= D_TINY_SIZE)
-		malloc_data.tiny = ft_delete_heap_if_empty(malloc_data.tiny);
-	else if (size <= D_SMALL_SIZE)
-		malloc_data.small = ft_delete_heap_if_empty(malloc_data.small);
-}
-
 static void	ft_update_heap(size_t size, void *pos)
 {
 	t_heap	*heap;
@@ -148,7 +140,6 @@ void	free(void *ptr)
 		*pos = size << E_OFFSET_FLAGS;
 		*pos += E_FREE;
 		ft_update_heap(size, pos);
-		ft_check_heap_empty(size);
 	}
 }
 

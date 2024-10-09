@@ -10,6 +10,9 @@ void	*ft_create_new_heap(t_heap *head, size_t heap_size)
 		0, 0);
 	if (new == MAP_FAILED)
 		return (false);
+	char	*page = (char*)new;
+	for (size_t i = 0; i < heap_size; i++)
+		page[i] = 0;
 	new->size = heap_size;
 	new->size_used = E_OFFSET_HEAP;
 	new->next = NULL;

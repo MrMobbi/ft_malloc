@@ -12,8 +12,8 @@ FLAGS_SHARED	= -shared
 FLAGS_DEBUG		= -g -fsanitize=address
 
 # EXECUTABLE
-NAME		= libft_malloc.so
-HOSTLIB		= libft_malloc_$(HOSTTYPE).so
+HOSTLIB		= libft_malloc.so
+NAME		= libft_malloc_$(HOSTTYPE).so
 
 # PATH
 SRCS_PATH	= srcs
@@ -58,8 +58,8 @@ start:
 			@$(START_TXT)
 
 art:
-			@tput setaf 2; cat doc/ascii_art/name; tput sgr0
 			@tput setaf 2; cat doc/ascii_art/project; tput sgr0
+			@tput setaf 2; cat doc/ascii_art/name; tput sgr0
 
 
 $(NAME):	$(OBJS)
@@ -83,22 +83,34 @@ $(OBJS_PATH)/%.o:	$(SRCS_PATH)/%.c
 clean:
 			@$(CLEAN_TXT)
 			@tput setaf 1; cat doc/ascii_art/trash; tput sgr0
+			@rm -rf test
+			@rm -rf test1
+			@rm -rf test2
+			@rm -rf test3
+			@rm -rf test4
+			@rm -rf test5
 			@rm -rf $(OBJS_PATH)
 
 fclean:		clean
 			@$(FCLEAN_TXT)
 			@rm -rf $(NAME) $(HOSTLIB) $(TEST_N)
-			@rm -rf test
 			@$(NL_TXT)
 
 re:			fclean all
 
 rt:			fclean all test t
 
-test:		t
+test:		all t
 			LD_LIBRARY_PATH=. ./test
 
 t:
-			$(CC) $(FLAGS) -o test test.c -L. -lft_malloc -I./incl
+			gcc -o test test.c -L. -lft_malloc && ./run_linux.sh test
 
-.PHONY:		clean fclean tmp re all test link
+test1:
+			gcc -o test1 test1.c && /usr/bin/time -v ./test1
+			./run_linux.sh /usr/bin/time -v ./test1
+
+test2:
+			gcc -o test2 test2.c && ./run_linux.sh /usr/bin/time -v ./test2
+
+.PHONY:		clean fclean tmp re all test test1 link
