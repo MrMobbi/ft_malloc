@@ -64,7 +64,7 @@ art:
 
 $(NAME):	$(OBJS)
 			@$(NL_TXT)
-			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME) -lpthread
+			@$(CC) $(FLAGS_SHARED) $(OBJS) -o $(NAME)
 			@$(END_TXT)
 
 link:
@@ -121,10 +121,4 @@ test2:
 			gcc -o test2 test2.c && ./run_linux.sh /usr/bin/time -v ./test2
 			@rm test2.c test2
 
-test_thread:
-			cp test_folder/test_thread.c test_thread.c
-			gcc -o test_thread test_thread.c -L. -lft_malloc -lpthread
-			./run_linux.sh ./test_thread
-			@rm test_thread.c test_thread
-
-.PHONY:		clean fclean tmp re all test test0 test1 test1 test_thread link
+.PHONY:		clean fclean tmp re all test test0 test1 test2 link

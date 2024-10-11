@@ -1,6 +1,5 @@
 
-#include "malloc.h"
-#include <string.h>
+#include "../incl/malloc.h"
 
 static void	ft_print_flags(size_t flags)
 {

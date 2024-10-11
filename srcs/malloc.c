@@ -1,5 +1,5 @@
-
-#include "malloc.h"
+ 
+#include "../incl/malloc.h"
 
 t_malloc_data	malloc_data;
 
@@ -29,7 +29,6 @@ static void	*ft_find_heap(t_heap *heap, size_t size)
 			new = malloc_data.big = ft_create_new_heap(NULL, page_size);
 		return (new);
 	}
-
 	if (size > D_SMALL_SIZE)
 		return (ft_create_new_heap(malloc_data.big, page_size));
 	else
@@ -40,7 +39,6 @@ void	*malloc(size_t size)
 {
 	void	*pos;
 	void	*heap;
-	pthread_mutex_lock(&malloc_data.mutex_malloc);
 	if (ft_is_tiny(size))
 		heap = ft_find_heap(malloc_data.tiny, size);
 	else if (ft_is_small(size))
@@ -49,23 +47,15 @@ void	*malloc(size_t size)
 	{
 		heap = ft_find_heap(malloc_data.big, size);
 		if (heap == NULL)
-		{
-			pthread_mutex_unlock(&malloc_data.mutex_malloc);
 			return (NULL);
-		}
 		heap += E_OFFSET_HEAP;
 		*((size_t*)heap) = E_BIG;
-		pthread_mutex_unlock(&malloc_data.mutex_malloc);
 		return (heap + E_OFFSET_META);
 	}
 	if (heap == NULL)
-	{
-		pthread_mutex_unlock(&malloc_data.mutex_malloc);
 		return (NULL);
-	}
 	pos = ft_new_chunk(size, heap);
 	ft_update_size_heap(heap);
-	pthread_mutex_unlock(&malloc_data.mutex_malloc);
 	return (pos);
 }
 
@@ -75,30 +65,19 @@ void	*malloc(size_t size)
 
 void	*realloc(void *pos, size_t size)
 {
-	pthread_mutex_lock(&malloc_data.mutex_realloc);
 	if (pos == NULL)
-	{
-		pthread_mutex_unlock(&malloc_data.mutex_realloc);
 		return (malloc(size));
-	}
 	pos -= E_OFFSET_META;
 	if ((*((size_t*)pos) & E_GET_FLAGS) == E_FREE \
 			|| (*((size_t*)pos) & E_GET_FLAGS) == E_RESIZE)
-	{
-		pthread_mutex_unlock(&malloc_data.mutex_realloc);
 		return (NULL);
-	}
 	else if ((*((size_t*)pos) & E_GET_FLAGS) == E_BIG)
-	{
-		pthread_mutex_unlock(&malloc_data.mutex_realloc);
 		return (ft_realloc_big(malloc_data.big, pos, size));
-	}
 	if ((ft_is_tiny(size) && ft_is_tiny(*((size_t*)pos)) >> E_OFFSET_FLAGS) ||
 			(ft_is_small(size) && ft_is_small(*((size_t*)pos))))
 		pos = ft_realloc_same_heap(pos, size);
 	else
 		pos = ft_realloc_all(malloc_data.big, pos, size);
-	pthread_mutex_unlock(&malloc_data.mutex_realloc);
 	return (pos);
 }
 
@@ -145,7 +124,6 @@ static void	ft_update_heap(size_t size, void *pos)
 
 void	free(void *ptr)
 {
-	pthread_mutex_lock(&malloc_data.mutex_free);
 	size_t	*pos = ptr - E_OFFSET_META;
 	size_t	meta_data = *pos;
 	size_t	size = meta_data >> E_OFFSET_FLAGS;
@@ -162,7 +140,6 @@ void	free(void *ptr)
 		*pos += E_FREE;
 		ft_update_heap(size, pos);
 	}
-	pthread_mutex_unlock(&malloc_data.mutex_free);
 }
 
 //******************//
@@ -171,9 +148,7 @@ void	free(void *ptr)
 
 void	show_alloc_mem(void)
 {
-	pthread_mutex_lock(&malloc_data.mutex_show);
 	ft_show_block(malloc_data.tiny, "TINY");
 	ft_show_block(malloc_data.small, "SMALL");
 	ft_show_block_big(malloc_data.big);
-	pthread_mutex_unlock(&malloc_data.mutex_show);
 }

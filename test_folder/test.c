@@ -32,7 +32,7 @@ int	main(void)
 	free(tiny2);
 	free(tiny3);
 
-	char	*small1 = malloc(153);
+	char	*small1 = malloc(73);
 	if (!small1)
 		return (1);
 	char	*small2 = malloc(1024);

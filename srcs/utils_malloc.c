@@ -1,6 +1,6 @@
 
+#include "../incl/malloc.h"
 
-#include "malloc.h"
 
 void	*ft_create_new_heap(t_heap *head, size_t heap_size)
 {
