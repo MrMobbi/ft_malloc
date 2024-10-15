@@ -121,4 +121,19 @@ test2:
 			gcc -o test2 test2.c && ./run_linux.sh /usr/bin/time -v ./test2
 			@rm test2.c test2
 
+test3:
+			cp test_folder/test3.c test3.c
+			gcc -o test3 test3.c -L. -lft_malloc && ./run_linux.sh ./test3
+			@rm test3.c test3
+
+test4:
+			cp test_folder/test4.c test4.c
+			gcc -o test4 test4.c -L. -lft_malloc && ./run_linux.sh ./test4
+			@rm test4.c test4
+
+test5:
+			cp test_folder/test5.c test5.c
+			gcc -o test5 test5.c -L. -lft_malloc && ./run_linux.sh ./test5
+			@rm test5.c test5
+
 .PHONY:		clean fclean tmp re all test test0 test1 test2 link
